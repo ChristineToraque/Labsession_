@@ -569,10 +569,10 @@ public class adminController {
                 if (item == null || empty) {
                     setStyle("");
                 } else {
-                    String accountStatus = item.getAccountStatus();
-                    if ("Active".equalsIgnoreCase(accountStatus)) {
+                    String status = item.getStatus();
+                    if ("Active".equalsIgnoreCase(status)) {
                         setStyle("-fx-background-color: #d4f8d4;"); // Light green
-                    } else if ("Inactive".equalsIgnoreCase(accountStatus)) {
+                    } else if ("Inactive".equalsIgnoreCase(status)) {
                         setStyle("-fx-background-color: #f8d4d4;"); // Light red
                     } else {
                         setStyle(""); // Reset style
