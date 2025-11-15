@@ -98,10 +98,10 @@ public class LoginController {
                 query = "SELECT * FROM admin WHERE (username = ? OR email = ?) AND password = ?";
                 break;
             case "FACULTY":
-                query = "SELECT * FROM faculty WHERE (username = ? OR email = ?) AND password = ?";
+                query = "SELECT * FROM faculty WHERE (username = ? OR email = ?) AND password = ? AND status = 'Active'";
                 break;
             case "STUDENT":
-                query = "SELECT * FROM student WHERE (username = ? OR email = ?) AND password = ?";
+                query = "SELECT * FROM student WHERE (username = ? OR email = ?) AND password = ? AND status = 'Active'";
                 break;
             default:
                 return false;

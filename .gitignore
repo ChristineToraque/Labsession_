@@ -1,1 +1,5 @@
 /dist/
+/build/
+javafx-sdk-24.0.2
+lib
+comlab1.sql

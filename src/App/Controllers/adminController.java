@@ -18,9 +18,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 import java.sql.*;
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -54,22 +52,8 @@ public class adminController {
         dc.connect();
         loadFacultyTable();
         loadStudents();
-        updateExpiredTasks();
-        
     }
-    public void updateExpiredTasks() {
-        try (PreparedStatement ps = dc.con.prepareStatement(
-            "UPDATE tasks SET status = 'Done' WHERE status = 'Ongoing' AND timeDateEnd <= NOW()"
-        )) {
-            int updatedRows = ps.executeUpdate();
-            if (updatedRows > 0) {
-                System.out.println(updatedRows + " task(s) marked as Done.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-//            showAlert(Alert.AlertType.ERROR, "Error", "Failed to update expired tasks:\n" + e.getMessage());
-        }
-    }
+    
     public void handleAddStudent() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Add Student");
@@ -278,33 +262,47 @@ public class adminController {
                 rs.getString("password"),
                 rs.getString("middlename"),
                 rs.getString("sec"),
-                rs.getString("year")
+                rs.getString("year"),
+                rs.getString("status")
             ));
 
         }
         actions.setCellFactory(col -> new TableCell<>() {
-            private final Button editBtn = new Button("Edit");
-            private final Button deleteBtn = new Button("Delete");
-            private final HBox actionBox = new HBox(5, editBtn, deleteBtn);
+            private final Button editBtn = new Button("EDIT");
+            private final Button toggleStatusBtn = new Button();
+            private final HBox actionBox = new HBox(5, editBtn, toggleStatusBtn);
 
             {
                 editBtn.setOnAction(e -> {
                     StudentView student = getTableView().getItems().get(getIndex());
                     showEditDialog(student);
                 });
-
-                deleteBtn.setOnAction(e -> {
+                
+                toggleStatusBtn.setOnAction(e -> {
                     StudentView student = getTableView().getItems().get(getIndex());
-                    deleteStudent(student.getStudentID());
+                    try {
+                        String newStatus = "Active".equals(student.getStatus()) ? "Inactive" : "Active";
+                        PreparedStatement ps = dc.con.prepareStatement("UPDATE student SET status = ? WHERE studentID = ?");
+                        ps.setString(1, newStatus);
+                        ps.setString(2, student.getStudentID());
+                        ps.executeUpdate();
+                        ps.close();
+                        loadStudents(); // Refresh table
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 });
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
+                 if (empty) {
                     setGraphic(null);
                 } else {
+                    StudentView student = getTableView().getItems().get(getIndex());
+                    String currentStatus = student.getStatus() != null ? student.getStatus() : "Inactive";
+                    toggleStatusBtn.setText("Active".equalsIgnoreCase(currentStatus) ? "Deactivate" : "Activate");
                     setGraphic(actionBox);
                 }
             }
@@ -368,23 +366,6 @@ public class adminController {
             }
         });
     }
-    private void deleteStudent(String studentID) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Delete this student?", ButtonType.YES, ButtonType.NO);
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.YES) {
-                try{
-                    String deleteQuery = "DELETE FROM student WHERE studentID=?";
-                    PreparedStatement stmt = dc.con.prepareStatement(deleteQuery);
-                    stmt.setString(1, studentID);
-                    stmt.executeUpdate();
-                    stmt.close();
-                    loadStudents(); // Refresh table
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
-    }
 
 
     
@@ -444,9 +425,9 @@ public class adminController {
         // Set actions column
         facActions.setCellFactory(col -> new TableCell<>() {
             private final Button editBtn = new Button("EDIT");
-            private final Button deleteBtn = new Button("DELETE");
+            private final Button toggleStatusBtn = new Button();
             private final Button viewBtn = new Button("SUBJECTS");
-            private final HBox btnBox = new HBox(5, editBtn, deleteBtn, viewBtn);
+            private final HBox btnBox = new HBox(5, editBtn, toggleStatusBtn, viewBtn);
 
             {
                 editBtn.setOnAction(e -> {
@@ -458,10 +439,15 @@ public class adminController {
                     }
                 });
 
-                deleteBtn.setOnAction(e -> {
+                toggleStatusBtn.setOnAction(e -> {
                     FacultyView selected = getTableView().getItems().get(getIndex());
                     try {
-                        deleteFaculty(selected.getFacultyID());
+                        String newStatus = "Active".equals(selected.getStatus()) ? "Inactive" : "Active";
+                        PreparedStatement ps = dc.con.prepareStatement("UPDATE faculty SET status = ? WHERE facultyID = ?");
+                        ps.setString(1, newStatus);
+                        ps.setString(2, selected.getFacultyID());
+                        ps.executeUpdate();
+                        ps.close();
                         loadFacultyTable(); // Refresh table
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -559,7 +545,17 @@ public class adminController {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : btnBox);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    FacultyView faculty = getTableView().getItems().get(getIndex());
+                    if ("Active".equalsIgnoreCase(faculty.getStatus())) {
+                        toggleStatusBtn.setText("Deactivate");
+                    } else {
+                        toggleStatusBtn.setText("Activate");
+                    }
+                    setGraphic(btnBox);
+                }
             }
         });
         facultyTable.setRowFactory(tv -> new TableRow<FacultyView>() {
@@ -585,94 +581,74 @@ public class adminController {
     }
     
     private void showTasksDialog(subject subj) {
-    Dialog<Void> taskDialog = new Dialog<>();
-    taskDialog.setTitle("Tasks for Subject: " + subj.getCode());
+        Dialog<Void> taskDialog = new Dialog<>();
+        taskDialog.setTitle("Tasks for Subject: " + subj.getCode());
 
-    ButtonType closeBtn = new ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE);
-    taskDialog.getDialogPane().getButtonTypes().add(closeBtn);
+        ButtonType closeBtn = new ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE);
+        taskDialog.getDialogPane().getButtonTypes().add(closeBtn);
 
-    TableView<TaskSubjectView> taskTable = new TableView<>();
-    taskTable.setPrefWidth(1920 * 0.75);
-    taskTable.setPrefHeight(1080 * 0.5);
+        TableView<TaskSubjectView> taskTable = new TableView<>();
+        taskTable.setPrefWidth(1920 * 0.75);
+        taskTable.setPrefHeight(1080 * 0.5);
 
-    TableColumn<TaskSubjectView, String> taskCol = new TableColumn<>("Task");
-    taskCol.setCellValueFactory(data -> data.getValue().taskProperty());
+        TableColumn<TaskSubjectView, String> taskCol = new TableColumn<>("Task");
+        taskCol.setCellValueFactory(data -> data.getValue().taskProperty());
+        
+        TableColumn<TaskSubjectView, String> descCol = new TableColumn<>("Description");
+        descCol.setCellValueFactory(data -> data.getValue().taskDescriptionProperty());
+        descCol.setPrefWidth(400);
 
-    TableColumn<TaskSubjectView, String> descCol = new TableColumn<>("Description");
-    descCol.setCellValueFactory(data -> data.getValue().taskDescriptionProperty());
-    descCol.setPrefWidth(400);
+        TableColumn<TaskSubjectView, String> durationCol = new TableColumn<>("Duration");
+        durationCol.setCellValueFactory(data -> data.getValue().durationProperty());
 
-    TableColumn<TaskSubjectView, String> durationCol = new TableColumn<>("Duration");
-    durationCol.setCellValueFactory(data -> data.getValue().durationProperty());
+        TableColumn<TaskSubjectView, String> statusCol = new TableColumn<>("Status");
+        statusCol.setCellValueFactory(data -> data.getValue().statusProperty());
 
-    TableColumn<TaskSubjectView, String> statusCol = new TableColumn<>("Status");
-    statusCol.setCellValueFactory(data -> data.getValue().statusProperty());
+        TableColumn<TaskSubjectView, String> dateCol = new TableColumn<>("Date Submitted");
+        dateCol.setCellValueFactory(data -> data.getValue().dateSubProperty());
 
-    TableColumn<TaskSubjectView, String> dateCol = new TableColumn<>("Date Submitted");
-    dateCol.setCellValueFactory(data -> data.getValue().dateSubProperty());
+        taskTable.getColumns().addAll(taskCol, descCol, durationCol, statusCol, dateCol);
 
-    taskTable.getColumns().addAll(taskCol, descCol, durationCol, statusCol, dateCol);
+        ObservableList<TaskSubjectView> tasks = FXCollections.observableArrayList();
+        try {
+            PreparedStatement stmt = dc.con.prepareStatement(
+                "SELECT task_id, task, status, subject_id, duration, instructor_id, task_code, description, "
+                        + "sem, school_year, date_sub, points FROM tasks WHERE subject_id = ?"
+            );
+            stmt.setString(1, subj.getId());
+            ResultSet rs = stmt.executeQuery();
 
-    ObservableList<TaskSubjectView> tasks = FXCollections.observableArrayList();
-    try {
-        PreparedStatement stmt = dc.con.prepareStatement(
-            "SELECT task_id, task, status, subject_id, instructor_id, task_code, description, "
-                    + "sem, school_year, date_sub, timeDateEnd, points FROM tasks WHERE subject_id = ?"
-        );
-        stmt.setString(1, subj.getId());
-        ResultSet rs = stmt.executeQuery();
-
-        while (rs.next()) {
-            Timestamp startTs = rs.getTimestamp("date_sub");
-            Timestamp endTs = rs.getTimestamp("timeDateEnd");
-
-            String formattedDuration = "N/A";
-            if (startTs != null && endTs != null) {
-                LocalDateTime start = startTs.toLocalDateTime();
-                LocalDateTime end = endTs.toLocalDateTime();
-
-                long minutesDuration = Duration.between(start, end).toMinutes();
-                long hours = minutesDuration / 60;
-                long minutes = minutesDuration % 60;
-
-                if (hours > 0 && minutes > 0) {
-                    formattedDuration = hours + "h " + minutes + "min";
-                } else if (hours > 0) {
-                    formattedDuration = hours + "h";
-                } else {
-                    formattedDuration = minutes + "min";
-                }
+            while (rs.next()) {
+                TaskSubjectView tsv = new TaskSubjectView(
+                    rs.getString("task_id"),
+                    rs.getString("task"),
+                    rs.getString("description"),
+                    subj.getCode(),
+                    subj.getDescription(),
+                    rs.getString("duration"),
+                    rs.getString("status"),
+                    rs.getString("date_sub"),
+                    rs.getString("points")
+                );
+                tasks.add(tsv);
             }
 
-            TaskSubjectView tsv = new TaskSubjectView(
-                rs.getString("task_id"),
-                rs.getString("task"),
-                rs.getString("description"),
-                subj.getCode(),
-                subj.getDescription(),
-                formattedDuration,   // 👈 calculated instead of DB "duration"
-                rs.getString("status"),
-                rs.getString("date_sub"),
-                rs.getString("points")
-            );
-            tasks.add(tsv);
+            rs.close();
+            stmt.close();
+//            conn.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
-        rs.close();
-        stmt.close();
-    } catch (Exception ex) {
-        ex.printStackTrace();
+        taskTable.setItems(tasks);
+        taskTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        VBox taskBox = new VBox(10, taskTable);
+        taskBox.setPadding(new Insets(10));
+        taskDialog.getDialogPane().setContent(taskBox);
+        taskDialog.initModality(Modality.APPLICATION_MODAL);
+        taskDialog.showAndWait();
     }
-
-    taskTable.setItems(tasks);
-    taskTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-    VBox taskBox = new VBox(10, taskTable);
-    taskBox.setPadding(new Insets(10));
-    taskDialog.getDialogPane().setContent(taskBox);
-    taskDialog.initModality(Modality.APPLICATION_MODAL);
-    taskDialog.showAndWait();
-}
 
     public void showEditDialog(FacultyView faculty)throws Exception {
         Dialog<ButtonType> dialog = new Dialog<>();
@@ -698,7 +674,8 @@ public class adminController {
                     "UPDATE faculty SET fullname=?, email=? WHERE facultyID=?"
                 );
                 ps.setString(1, fullnameField.getText());
-                ps.setString(2, emailField.getText());                 ps.setString(3, faculty.getFacultyID());
+                ps.setString(2, emailField.getText());
+                ps.setString(3, faculty.getFacultyID());
 
                 ps.executeUpdate();
                 ps.close();

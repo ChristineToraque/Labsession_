@@ -104,7 +104,7 @@ public class FacultyDashboardController {
             if (response == ButtonType.YES) {
                 try {
                     Stage stage = (Stage) logoutButton.getScene().getWindow();
-                    Parent root = FXMLLoader.load(getClass().getResource("/views/login/LoginPanel.fxml"));
+                    Parent root = FXMLLoader.load(getClass().getResource("/views/loginpanel.fxml"));
                     stage.setScene(new Scene(root));
                     stage.show();
                 } catch (Exception e) {

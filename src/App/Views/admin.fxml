@@ -20,12 +20,12 @@
          </image>
       </ImageView>
       <Line endX="-17.999984741210938" layoutX="142.0" layoutY="117.0" startX="-100.0" />
-      <Button layoutX="18.0" layoutY="184.0" mnemonicParsing="false" onAction="#facultyClick" prefHeight="26.0" prefWidth="130.0" style="-fx-background-color: lightblue;" text="FACULTY">
+      <Button layoutX="18.0" layoutY="221.0" mnemonicParsing="false" onAction="#facultyClick" prefHeight="26.0" prefWidth="130.0" style="-fx-background-color: lightblue;" text="FACULTY">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
       </Button>
-      <Button layoutX="18.0" layoutY="247.0" mnemonicParsing="false" onAction="#studentClick" prefHeight="26.0" prefWidth="130.0" style="-fx-background-color: lightblue;" text="STUDENT">
+      <Button layoutX="18.0" layoutY="257.0" mnemonicParsing="false" onAction="#studentClick" prefHeight="26.0" prefWidth="130.0" style="-fx-background-color: lightblue;" text="STUDENT">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>

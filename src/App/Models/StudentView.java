@@ -26,11 +26,12 @@ public class StudentView {
     private final StringProperty middlename;
     private final StringProperty section;
     private final StringProperty year;
+    private final StringProperty status;
 
 
     public StudentView(String studentID, String lastname, String firstname, String gender, String age,
                    String address, String email, String contact, String username, String password,
-                   String middlename, String section, String year) {
+                   String middlename, String section, String year, String status) {
         this.studentID = new SimpleStringProperty(studentID);
         this.lastname = new SimpleStringProperty(lastname);
         this.firstname = new SimpleStringProperty(firstname);
@@ -44,7 +45,11 @@ public class StudentView {
         this.middlename = new SimpleStringProperty(middlename);
         this.section = new SimpleStringProperty(section);
         this.year = new SimpleStringProperty(year);
+        this.status = new SimpleStringProperty(status);
     }
+    public String getStatus() { return status.get(); }
+    public void setStatus(String value) { status.set(value); }
+    public StringProperty statusProperty() { return status; }
     public String getSection() { return section.get(); }
     public void setSection(String value) { section.set(value); }
     public StringProperty sectionProperty() { return section; }
@@ -186,12 +191,6 @@ public class StudentView {
 
     public StringProperty usernameProperty() {
         return username;
-    }
-    public StringProperty YearProperty() {
-        return year;
-    }
-    public StringProperty SectionProperty() {
-        return section;
     }
 
     public String getPassword() {
