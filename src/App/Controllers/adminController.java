@@ -231,7 +231,7 @@ public class adminController {
 
 
     @FXML private TableView<StudentView> studentTable;
-    @FXML private TableColumn<StudentView, String> fullname, email, user, pass, yearSection, studentStatus, studentAccountStatus;
+    @FXML private TableColumn<StudentView, String> fullname, email, user, pass, yearSection;
     @FXML private TableColumn<StudentView, Void> actions;
     
     ObservableList<StudentView> studentList = FXCollections.observableArrayList();
@@ -244,8 +244,6 @@ public class adminController {
         pass.setCellValueFactory(data -> data.getValue().passwordProperty());
         yearSection.setCellValueFactory(data ->
         new SimpleStringProperty(data.getValue().getYear() + " - " + data.getValue().getSection()));
-        studentStatus.setCellValueFactory(data -> data.getValue().statusProperty());
-        studentAccountStatus.setCellValueFactory(data -> data.getValue().accountStatusProperty());
 
         PreparedStatement stmt = dc.con.prepareStatement("SELECT * FROM student ORDER BY lastname");
         ResultSet rs = stmt.executeQuery();
@@ -390,7 +388,7 @@ public class adminController {
 
 
     @FXML private TableView<FacultyView> facultyTable;
-    @FXML private TableColumn<FacultyView, String> facFullname, facEmail, facPassword, facUsername,status, accountStatus;
+    @FXML private TableColumn<FacultyView, String> facFullname, facEmail, facPassword, facUsername,status;
     @FXML private TableColumn<FacultyView, Void> facActions;
     
     ObservableList<FacultyView> facultyList = FXCollections.observableArrayList();
@@ -425,7 +423,6 @@ public class adminController {
         facUsername.setCellValueFactory(data -> data.getValue().usernameProperty());
         facPassword.setCellValueFactory(data -> data.getValue().passwordProperty());
         status.setCellValueFactory(data -> data.getValue().statusProperty());
-        accountStatus.setCellValueFactory(data -> data.getValue().accountStatusProperty());
 
         // Set actions column
         facActions.setCellFactory(col -> new TableCell<>() {
