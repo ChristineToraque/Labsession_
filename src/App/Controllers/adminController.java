@@ -42,7 +42,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 
 /**
- *
+ * 
  * @author Blanc
  */
 
@@ -231,7 +231,7 @@ public class adminController {
 
 
     @FXML private TableView<StudentView> studentTable;
-    @FXML private TableColumn<StudentView, String> fullname, email, user, pass, yearSection;
+    @FXML private TableColumn<StudentView, String> fullname, email, user, pass, yearSection, studentStatus, studentAccountStatus;
     @FXML private TableColumn<StudentView, Void> actions;
     
     ObservableList<StudentView> studentList = FXCollections.observableArrayList();
@@ -244,6 +244,8 @@ public class adminController {
         pass.setCellValueFactory(data -> data.getValue().passwordProperty());
         yearSection.setCellValueFactory(data ->
         new SimpleStringProperty(data.getValue().getYear() + " - " + data.getValue().getSection()));
+        studentStatus.setCellValueFactory(data -> data.getValue().statusProperty());
+        studentAccountStatus.setCellValueFactory(data -> data.getValue().accountStatusProperty());
 
         PreparedStatement stmt = dc.con.prepareStatement("SELECT * FROM student ORDER BY lastname");
         ResultSet rs = stmt.executeQuery();
@@ -263,7 +265,8 @@ public class adminController {
                 rs.getString("middlename"),
                 rs.getString("sec"),
                 rs.getString("year"),
-                rs.getString("status")
+                rs.getString("status"),
+                rs.getString("account_status")
             ));
 
         }
@@ -281,9 +284,9 @@ public class adminController {
                 toggleStatusBtn.setOnAction(e -> {
                     StudentView student = getTableView().getItems().get(getIndex());
                     try {
-                        String newStatus = "Active".equals(student.getStatus()) ? "Inactive" : "Active";
-                        PreparedStatement ps = dc.con.prepareStatement("UPDATE student SET status = ? WHERE studentID = ?");
-                        ps.setString(1, newStatus);
+                        String newAccountStatus = "Active".equals(student.getAccountStatus()) ? "Inactive" : "Active";
+                        PreparedStatement ps = dc.con.prepareStatement("UPDATE student SET account_status = ? WHERE studentID = ?");
+                        ps.setString(1, newAccountStatus);
                         ps.setString(2, student.getStudentID());
                         ps.executeUpdate();
                         ps.close();
@@ -301,8 +304,8 @@ public class adminController {
                     setGraphic(null);
                 } else {
                     StudentView student = getTableView().getItems().get(getIndex());
-                    String currentStatus = student.getStatus() != null ? student.getStatus() : "Inactive";
-                    toggleStatusBtn.setText("Active".equalsIgnoreCase(currentStatus) ? "Deactivate" : "Activate");
+                    String currentAccountStatus = student.getAccountStatus() != null ? student.getAccountStatus() : "Inactive";
+                    toggleStatusBtn.setText("Active".equalsIgnoreCase(currentAccountStatus) ? "Deactivate" : "Activate");
                     setGraphic(actionBox);
                 }
             }
@@ -369,7 +372,7 @@ public class adminController {
 
 
     
-    //----------------------- INSTRUCTOR -----------------------//
+    //----------------------- INSTRUCTOR -----------------------
     @FXML private TextField facKeyWord;
     @FXML
     public void searchFaculty() {
@@ -379,7 +382,7 @@ public class adminController {
             return faculty.fullnameProperty().get().toLowerCase().contains(lowerKeyword) ||
                    faculty.emailProperty().get().toLowerCase().contains(lowerKeyword) ||
                    faculty.usernameProperty().get().toLowerCase().contains(lowerKeyword) ||
-                   faculty.statusProperty().get().toLowerCase().contains(lowerKeyword);
+                   faculty.accountStatusProperty().get().toLowerCase().contains(lowerKeyword);
         });
 
         facultyTable.setItems(filteredData);
@@ -387,7 +390,7 @@ public class adminController {
 
 
     @FXML private TableView<FacultyView> facultyTable;
-    @FXML private TableColumn<FacultyView, String> facFullname, facEmail, facPassword, facUsername,status;
+    @FXML private TableColumn<FacultyView, String> facFullname, facEmail, facPassword, facUsername,status, accountStatus;
     @FXML private TableColumn<FacultyView, Void> facActions;
     
     ObservableList<FacultyView> facultyList = FXCollections.observableArrayList();
@@ -408,7 +411,8 @@ public class adminController {
                     rs.getString("datehired"),
                     rs.getString("username"),
                     rs.getString("password"),
-                    rs.getString("status")
+                    rs.getString("status"), 
+                    rs.getString("account_status")
             ));
         }
 
@@ -421,6 +425,7 @@ public class adminController {
         facUsername.setCellValueFactory(data -> data.getValue().usernameProperty());
         facPassword.setCellValueFactory(data -> data.getValue().passwordProperty());
         status.setCellValueFactory(data -> data.getValue().statusProperty());
+        accountStatus.setCellValueFactory(data -> data.getValue().accountStatusProperty());
 
         // Set actions column
         facActions.setCellFactory(col -> new TableCell<>() {
@@ -442,9 +447,9 @@ public class adminController {
                 toggleStatusBtn.setOnAction(e -> {
                     FacultyView selected = getTableView().getItems().get(getIndex());
                     try {
-                        String newStatus = "Active".equals(selected.getStatus()) ? "Inactive" : "Active";
-                        PreparedStatement ps = dc.con.prepareStatement("UPDATE faculty SET status = ? WHERE facultyID = ?");
-                        ps.setString(1, newStatus);
+                        String newAccountStatus = "Active".equals(selected.getAccountStatus()) ? "Inactive" : "Active";
+                        PreparedStatement ps = dc.con.prepareStatement("UPDATE faculty SET account_status = ? WHERE facultyID = ?");
+                        ps.setString(1, newAccountStatus);
                         ps.setString(2, selected.getFacultyID());
                         ps.executeUpdate();
                         ps.close();
@@ -549,7 +554,7 @@ public class adminController {
                     setGraphic(null);
                 } else {
                     FacultyView faculty = getTableView().getItems().get(getIndex());
-                    if ("Active".equalsIgnoreCase(faculty.getStatus())) {
+                    if ("Active".equalsIgnoreCase(faculty.getAccountStatus())) {
                         toggleStatusBtn.setText("Deactivate");
                     } else {
                         toggleStatusBtn.setText("Activate");
@@ -563,13 +568,14 @@ public class adminController {
             protected void updateItem(FacultyView item, boolean empty) {
                 super.updateItem(item, empty);
 
+    
                 if (item == null || empty) {
                     setStyle("");
                 } else {
-                    String status = item.getStatus();
-                    if ("Active".equalsIgnoreCase(status)) {
+                    String accountStatus = item.getAccountStatus();
+                    if ("Active".equalsIgnoreCase(accountStatus)) {
                         setStyle("-fx-background-color: #d4f8d4;"); // Light green
-                    } else if ("Inactive".equalsIgnoreCase(status)) {
+                    } else if ("Inactive".equalsIgnoreCase(accountStatus)) {
                         setStyle("-fx-background-color: #f8d4d4;"); // Light red
                     } else {
                         setStyle(""); // Reset style

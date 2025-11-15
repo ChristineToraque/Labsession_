@@ -13,6 +13,7 @@ import models.Performance;
 import utils.DBConnector;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -103,6 +104,16 @@ public class FacultyDashboardController {
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.YES) {
                 try {
+                    // Update status to "Logged Out"
+                    String facultyID = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get("instructorID.txt")));
+                    try (Connection conn = DBConnector.getConnection();
+                         PreparedStatement stmt = conn.prepareStatement("UPDATE faculty SET status = 'Logged Out' WHERE facultyID = ?")) {
+                        stmt.setString(1, facultyID);
+                        stmt.executeUpdate();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
                     Stage stage = (Stage) logoutButton.getScene().getWindow();
                     Parent root = FXMLLoader.load(getClass().getResource("/views/loginpanel.fxml"));
                     stage.setScene(new Scene(root));

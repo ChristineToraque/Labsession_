@@ -460,6 +460,39 @@ public class studentFrameController {
         countdown.play();
     }
 
+    @FXML private Button logoutButton;
+
+    @FXML
+    private void handleLogOut() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Log Out");
+        alert.setHeaderText("Are you sure you want to log out?");
+        alert.setContentText("Click 'Yes' to log out, or 'Cancel' to stay.");
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                try {
+                    // Update status to "Logged Out"
+                    try (Connection conn = dc.con;
+                         PreparedStatement stmt = conn.prepareStatement("UPDATE student SET status = 'Logged Out' WHERE studentID = ?")) {
+                        stmt.setString(1, studentId);
+                        stmt.executeUpdate();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
+                    javafx.stage.Stage stage = (javafx.stage.Stage) logoutButton.getScene().getWindow();
+                    javafx.scene.Parent root = javafx.fxml.FXMLLoader.load(getClass().getResource("/views/loginpanel.fxml"));
+                    stage.setScene(new javafx.scene.Scene(root));
+                    stage.show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    showAlert(Alert.AlertType.ERROR, "Log Out Failed", "Unable to load the login screen.");
+                }
+            }
+        });
+    }
+
     private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

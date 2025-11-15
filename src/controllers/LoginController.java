@@ -92,16 +92,19 @@ public class LoginController {
     String id = "";
     private boolean validateLogin(String username, String password, String userType) throws Exception{
         String query = "";
+        String updateQuery = "";
         
         switch (userType) {
             case "ADMIN":
                 query = "SELECT * FROM admin WHERE (username = ? OR email = ?) AND password = ?";
                 break;
             case "FACULTY":
-                query = "SELECT * FROM faculty WHERE (username = ? OR email = ?) AND password = ? AND status = 'Active'";
+                query = "SELECT * FROM faculty WHERE (username = ? OR email = ?) AND password = ? AND account_status = 'Active'";
+                updateQuery = "UPDATE faculty SET status = 'Logged In' WHERE facultyID = ?";
                 break;
             case "STUDENT":
-                query = "SELECT * FROM student WHERE (username = ? OR email = ?) AND password = ? AND status = 'Active'";
+                query = "SELECT * FROM student WHERE (username = ? OR email = ?) AND password = ? AND account_status = 'Active'";
+                updateQuery = "UPDATE student SET status = 'Logged In' WHERE studentID = ?";
                 break;
             default:
                 return false;
@@ -126,10 +129,17 @@ public class LoginController {
                     case "ADMIN":
                         id=rs.getString("id");
                         System.out.println("ADMIN Log in");
-                        break;
-                    default:
-                        return true;
+                        return true; // Admin doesn't have a status to update
                 }
+                
+                // Update status to "Logged In"
+                if (!updateQuery.isEmpty()) {
+                    try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
+                        updateStmt.setString(1, id);
+                        updateStmt.executeUpdate();
+                    }
+                }
+                
                 return true;
             }
             return false;
