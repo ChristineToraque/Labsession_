@@ -29,8 +29,15 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 /**
  *
@@ -47,9 +54,6 @@ public class sessionController {
             instructorID=sc.nextLine();
             System.out.println(instructorID);
         }
-        Statement statement = dc.con.createStatement();
-        statement.executeUpdate("UPDATE `faculty` SET status= 'Active' WHERE facultyID = '"+instructorID+"'");
-        
         loadSubTable();
         loadTasksToTable();
         semCombo.getItems().addAll("1st", "2nd", "Mid Year");
@@ -63,9 +67,26 @@ public class sessionController {
     }
     
     @FXML
-    public void logOut()throws Exception{
-        Statement statement = dc.con.createStatement();
-        statement.executeUpdate("UPDATE `faculty` SET status= 'Inactive' WHERE facultyID = '"+instructorID+"'");
+    public void logOut(ActionEvent event) throws Exception {
+        try {
+            // Update status to Inactive
+            Statement statement = dc.con.createStatement();
+            statement.executeUpdate("UPDATE `faculty` SET status= 'Inactive' WHERE facultyID = '" + instructorID + "'");
+            statement.close();
+
+            // Get the current stage from the event source
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
+
+            // Load and show the login panel
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/loginpanel.fxml"));
+            Parent root = loader.load();
+            Stage loginStage = new Stage();
+            loginStage.setScene(new Scene(root));
+            loginStage.show();
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+        }
     }
     
     @FXML private TableView<PerformanceView> studentPass;
@@ -864,6 +885,7 @@ public class sessionController {
     @FXML private Pane taskPane, subjectPane, studentPassPane;
     public void taskPaneShow()throws Exception{
         taskPane.setVisible(true);
+        // Add this line to your existing taskPaneShow method
         subjectPane.setVisible(false);
         studentPassPane.setVisible(false);
         loadTasksToTable();
