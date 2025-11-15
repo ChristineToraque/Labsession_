@@ -40,6 +40,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
+import java.io.IOException;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 /**
  * 
@@ -52,6 +59,24 @@ public class adminController {
         dc.connect();
         loadFacultyTable();
         loadStudents();
+    }
+    
+    @FXML
+    private void logout(ActionEvent event) {
+        try {
+            // Get the current stage
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.close();
+
+            // Load the login panel
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/loginpanel.fxml"));
+            Parent root = loader.load();
+            Stage loginStage = new Stage();
+            loginStage.setScene(new Scene(root));
+            loginStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
     public void handleAddStudent() {
@@ -564,18 +589,15 @@ public class adminController {
             @Override
             protected void updateItem(FacultyView item, boolean empty) {
                 super.updateItem(item, empty);
-
-    
                 if (item == null || empty) {
                     setStyle("");
                 } else {
-                    String status = item.getStatus();
-                    if ("Active".equalsIgnoreCase(status)) {
-                        setStyle("-fx-background-color: #d4f8d4;"); // Light green
-                    } else if ("Inactive".equalsIgnoreCase(status)) {
-                        setStyle("-fx-background-color: #f8d4d4;"); // Light red
+                    String loginStatus = item.getStatus();
+
+                    if ("Logged In".equalsIgnoreCase(loginStatus) || "Active".equalsIgnoreCase(loginStatus)) {
+                        setStyle("-fx-background-color: #d4f8d4;"); // Light green for active/logged in
                     } else {
-                        setStyle(""); // Reset style
+                        setStyle("-fx-background-color: #f8d4d4;"); // Light red for inactive
                     }
                 }
             }
@@ -770,8 +792,8 @@ public class adminController {
 
                 // Insert data
                 PreparedStatement ps = dc.con.prepareStatement(
-                    "INSERT INTO faculty (fullname, gender, age, email, contact, datehired, username, password, birthday) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                    "INSERT INTO faculty (fullname, gender, age, email, contact, datehired, username, password, birthday, account_status) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 );
                 ps.setString(1, fullnameField.getText());
                 ps.setString(2, genderCombo.getValue());
@@ -782,6 +804,7 @@ public class adminController {
                 ps.setString(7, usernameField.getText());
                 ps.setString(8, passwordField.getText());
                 ps.setDate(9, java.sql.Date.valueOf(birthdayPicker.getValue()));
+                ps.setString(10, "Inactive");
 
                 int rowsInserted = ps.executeUpdate();
                 ps.close();

@@ -100,11 +100,11 @@ public class LoginController {
                 break;
             case "FACULTY":
                 query = "SELECT * FROM faculty WHERE (username = ? OR email = ?) AND password = ? AND account_status = 'Active'";
-                updateQuery = "UPDATE faculty SET status = 'Logged In' WHERE facultyID = ?";
+                updateQuery = "UPDATE faculty SET status = 'Active' WHERE facultyID = ?";
                 break;
             case "STUDENT":
                 query = "SELECT * FROM student WHERE (username = ? OR email = ?) AND password = ? AND account_status = 'Active'";
-                updateQuery = "UPDATE student SET status = 'Logged In' WHERE studentID = ?";
+                updateQuery = "UPDATE student SET status = 'Active' WHERE studentID = ?";
                 break;
             default:
                 return false;

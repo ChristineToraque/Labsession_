@@ -85,6 +85,7 @@
               </columns>
             </TableView>
             <Label fx:id="totalPass" layoutX="79.0" layoutY="75.0" text="Total: " />
+            <Button layoutX="79.0" layoutY="40.0" mnemonicParsing="false" onAction="#taskPaneShow" text="Back" />
          </children>
       </Pane>
       <Button layoutX="18.0" layoutY="270.0" mnemonicParsing="false" onAction="#logOut" prefHeight="26.0" prefWidth="130.0" style="-fx-background-color: lightblue;" text="LOGOUT">
