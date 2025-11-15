@@ -284,6 +284,9 @@ public class adminController {
                         String newStatus = "Active".equals(student.getStatus()) ? "Inactive" : "Active";
                         PreparedStatement ps = dc.con.prepareStatement("UPDATE student SET status = ? WHERE studentID = ?");
                         ps.setString(1, newStatus);
+                        String newAccountStatus = "Active".equals(student.getAccountStatus()) ? "Inactive" : "Active";
+                        PreparedStatement ps = dc.con.prepareStatement("UPDATE student SET account_status = ? WHERE studentID = ?");
+                        ps.setString(1, newAccountStatus);
                         ps.setString(2, student.getStudentID());
                         ps.executeUpdate();
                         ps.close();
@@ -303,6 +306,8 @@ public class adminController {
                     StudentView student = getTableView().getItems().get(getIndex());
                     String currentStatus = student.getStatus() != null ? student.getStatus() : "Inactive";
                     toggleStatusBtn.setText("Active".equalsIgnoreCase(currentStatus) ? "Deactivate" : "Activate");
+                    String currentAccountStatus = student.getAccountStatus() != null ? student.getAccountStatus() : "Inactive";
+                    toggleStatusBtn.setText("Active".equalsIgnoreCase(currentAccountStatus) ? "Deactivate" : "Activate");
                     setGraphic(actionBox);
                 }
             }
@@ -445,6 +450,9 @@ public class adminController {
                         String newStatus = "Active".equals(selected.getStatus()) ? "Inactive" : "Active";
                         PreparedStatement ps = dc.con.prepareStatement("UPDATE faculty SET status = ? WHERE facultyID = ?");
                         ps.setString(1, newStatus);
+                        String newAccountStatus = "Active".equals(selected.getAccountStatus()) ? "Inactive" : "Active";
+                        PreparedStatement ps = dc.con.prepareStatement("UPDATE faculty SET account_status = ? WHERE facultyID = ?");
+                        ps.setString(1, newAccountStatus);
                         ps.setString(2, selected.getFacultyID());
                         ps.executeUpdate();
                         ps.close();
@@ -550,6 +558,7 @@ public class adminController {
                 } else {
                     FacultyView faculty = getTableView().getItems().get(getIndex());
                     if ("Active".equalsIgnoreCase(faculty.getStatus())) {
+                    if ("Active".equalsIgnoreCase(faculty.getAccountStatus())) {
                         toggleStatusBtn.setText("Deactivate");
                     } else {
                         toggleStatusBtn.setText("Activate");
@@ -563,10 +572,12 @@ public class adminController {
             protected void updateItem(FacultyView item, boolean empty) {
                 super.updateItem(item, empty);
 
+    
                 if (item == null || empty) {
                     setStyle("");
                 } else {
                     String status = item.getStatus();
+                    String status = item.getAccountStatus();
                     if ("Active".equalsIgnoreCase(status)) {
                         setStyle("-fx-background-color: #d4f8d4;"); // Light green
                     } else if ("Inactive".equalsIgnoreCase(status)) {
