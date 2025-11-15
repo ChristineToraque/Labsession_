@@ -22,10 +22,11 @@ public class FacultyView {
     private final StringProperty username;
     private final StringProperty password;
     private final StringProperty status;
+    private final StringProperty accountStatus;
 
     public FacultyView(String facultyID, String fullname, String gender, String age,
                        String email, String contact, String dateHired,
-                       String username, String password, String status) {
+                       String username, String password, String status, String accountStatus) {
         this.facultyID = new SimpleStringProperty(facultyID);
         this.fullname = new SimpleStringProperty(fullname);
         this.gender = new SimpleStringProperty(gender);
@@ -36,6 +37,7 @@ public class FacultyView {
         this.username = new SimpleStringProperty(username);
         this.password = new SimpleStringProperty(password);
         this.status = new SimpleStringProperty(status);
+        this.accountStatus = new SimpleStringProperty(accountStatus);
     }
 
     // Getters
@@ -49,6 +51,7 @@ public class FacultyView {
     public String getUsername() { return username.get(); }
     public String getPassword() { return password.get(); }
     public String getStatus() { return status.get(); }
+    public String getAccountStatus() { return accountStatus.get(); }
 
     // Properties
     public StringProperty facultyIDProperty() { return facultyID; }
@@ -61,5 +64,6 @@ public class FacultyView {
     public StringProperty usernameProperty() { return username; }
     public StringProperty passwordProperty() { return password; }
     public StringProperty statusProperty() { return status; }
+    public StringProperty accountStatusProperty() { return accountStatus; }
 }
 

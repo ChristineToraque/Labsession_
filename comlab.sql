@@ -109,7 +109,8 @@ CREATE TABLE `faculty` (
   `username` varchar(50) DEFAULT NULL,
   `password` varchar(50) DEFAULT NULL,
   `status` varchar(254) NOT NULL DEFAULT 'Inactive',
-  `birthday` date DEFAULT current_timestamp()
+  `account_status` varchar(254) NOT NULL DEFAULT 'Active',
+  `birthday` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -157,25 +158,25 @@ CREATE TABLE `student` (
   `contact` varchar(254) NOT NULL,
   `username` varchar(200) NOT NULL,
   `password` varchar(200) NOT NULL,
-  `status` varchar(254) NOT NULL DEFAULT 'Inactive',
-  `birthday` date NOT NULL DEFAULT current_timestamp(),
+  `birthday` date NOT NULL,
   `middlename` varchar(254) DEFAULT NULL,
   `sec` varchar(254) DEFAULT NULL,
-  `year` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `year` int(11) DEFAULT NULL,
+  `status` varchar(254) NOT NULL DEFAULT 'Logged Out',
+  `account_status` varchar(254) NOT NULL DEFAULT 'Active') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `student`
 --
 
 INSERT INTO `student` (`studentID`, `lastname`, `firstname`, `gender`, `age`, `address`, `email`, `contact`, `username`, `password`, `birthday`, `middlename`, `sec`, `year`) VALUES
-(1, 'canedo', 'jonathan', 'male', 23, '0912345678', 'jonathan01@gmail.com', '912345678', 'nathan', '090807', '2025-07-13', NULL, 'B', 2, 'Inactive'),
-(23, 'bahinting', 'rejeans', 'female', 24, '0977443242', 'rejean@gmail.com', '977443242', 'rejean', '12345678', '2025-07-13', NULL, 'B', 2, 'Inactive'),
-(26, 'plenos', 'via', 'female', 23, 'prk 5', 'via@gmail.com', '912345678', 'via', '12345678', '2025-07-13', NULL, 'B', 2, 'Inactive'),
-(27, 'lah', 'lah', 'mali', 32, 'lasdk', 'lah@gmail.com', '999999999', 'lah', 'lah', '2025-07-13', NULL, 'A', 1, 'Inactive'),
-(28, 'ASd', 'Sda', 'Male', 3, 'asd', 'asd', '951515165', 'lah', 'lahlah', '2021-08-03', NULL, 'B', 2, 'Inactive'),
-(29, 'sadasd', 'sadsad', 'Male', 0, 'asdasdasd', 'sad@gmail.com', '09510476375', 'sadsad', 'Sadsad', '2025-07-15', NULL, 'B', 2, 'Inactive'),
-(30, 'sfgs', 'fsgfs', 'Male', 9, '234dfa', 'adf@gmail.com', '09555555555', 'sadsadwqe', 'Sadsad', '2015-08-09', 'ssad', 'B', 2, 'Inactive');
+(1, 'canedo', 'jonathan', 'male', 23, '0912345678', 'jonathan01@gmail.com', '912345678', 'nathan', '090807', '2025-07-13', NULL, 'B', 2),
+(23, 'bahinting', 'rejeans', 'female', 24, '0977443242', 'rejean@gmail.com', '977443242', 'rejean', '12345678', '2025-07-13', NULL, 'B', 2),
+(26, 'plenos', 'via', 'female', 23, 'prk 5', 'via@gmail.com', '912345678', 'via', '12345678', '2025-07-13', NULL, 'B', 2),
+(27, 'lah', 'lah', 'mali', 32, 'lasdk', 'lah@gmail.com', '999999999', 'lah', 'lah', '2025-07-13', NULL, 'A', 1),
+(28, 'ASd', 'Sda', 'Male', 3, 'asd', 'asd', '951515165', 'lah', 'lahlah', '2021-08-03', NULL, 'B', 2),
+(29, 'sadasd', 'sadsad', 'Male', 0, 'asdasdasd', 'sad@gmail.com', '09510476375', 'sadsad', 'Sadsad', '2025-07-15', NULL, 'B', 2),
+(30, 'sfgs', 'fsgfs', 'Male', 9, '234dfa', 'adf@gmail.com', '09555555555', 'sadsadwqe', 'Sadsad', '2015-08-09', 'ssad', 'B', 2);
 
 -- --------------------------------------------------------
 

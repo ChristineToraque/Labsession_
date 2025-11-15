@@ -60,6 +60,7 @@
                   <TableColumn fx:id="user" prefWidth="126.4000244140625" text="Username" />
                   <TableColumn fx:id="pass" prefWidth="138.4000244140625" text="Password" />
                   <TableColumn fx:id="yearSection" prefWidth="100.79998779296875" text="Year&amp;Section" />
+                  <TableColumn fx:id="studentStatus" prefWidth="67.99993896484375" text="Status" />
                   <TableColumn fx:id="actions" prefWidth="126.4000244140625" text="Actions" />
               </columns>
             </TableView>

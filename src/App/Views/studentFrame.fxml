@@ -94,5 +94,10 @@
          </children>
       </Pane>
       <Label fx:id="user" layoutX="14.0" layoutY="132.0" prefHeight="18.0" prefWidth="130.0" />
+      <Button fx:id="logoutButton" layoutX="18.0" layoutY="270.0" mnemonicParsing="false" onAction="#handleLogOut" prefHeight="26.0" prefWidth="130.0" style="-fx-background-color: lightblue;" text="LOGOUT">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Button>
    </children>
 </AnchorPane>
