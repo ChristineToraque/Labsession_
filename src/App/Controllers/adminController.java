@@ -46,6 +46,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+
+// changes, tanan, para ni maka buhat na og radio button -- line 51 to 52
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
 
 /**
@@ -684,10 +688,30 @@ public class adminController {
         grid.setVgap(10);
 
         TextField fullnameField = new TextField(faculty.getFullname());
+        
+        // CHANGES, faculty, mao ni radio button -- line 693 to 704
+        ToggleGroup genderGroup = new ToggleGroup();
+        RadioButton maleRadio = new RadioButton("Male");
+        maleRadio.setToggleGroup(genderGroup);
+        RadioButton femaleRadio = new RadioButton("Female");
+        femaleRadio.setToggleGroup(genderGroup);
+        HBox genderBox = new HBox(10, maleRadio, femaleRadio);
+
+        if ("Male".equalsIgnoreCase(faculty.getGender())) {
+            maleRadio.setSelected(true);
+        } else {
+            femaleRadio.setSelected(true);
+        }
+
         TextField emailField = new TextField(faculty.getEmail());
 
         grid.addRow(0, new Label("Full Name:"), fullnameField);
-        grid.addRow(1, new Label("Email:"), emailField);
+        // ORIGINAL
+        // grid.addRow(1, new Label("Email:"), emailField);
+
+        // CHANGES, faculty, mao ni radio button, line 713 to 714
+        grid.addRow(1, new Label("Gender:"), genderBox);
+        grid.addRow(2, new Label("Email:"), emailField);
 
         dialog.getDialogPane().setContent(grid);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -695,12 +719,23 @@ public class adminController {
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
+                // ORIGINAL
+                // PreparedStatement ps = dc.con.prepareStatement(
+                //     "UPDATE faculty SET fullname=?, email=? WHERE facultyID=?"
+                // );
+
+                // CHANGES, faculty, para ni ma record ang radio button sa database, -- line 728 to 730
                 PreparedStatement ps = dc.con.prepareStatement(
-                    "UPDATE faculty SET fullname=?, email=? WHERE facultyID=?"
+                    "UPDATE faculty SET fullname=?, email=?, gender=? WHERE facultyID=?"
                 );
                 ps.setString(1, fullnameField.getText());
                 ps.setString(2, emailField.getText());
-                ps.setString(3, faculty.getFacultyID());
+                // ORIGINAL
+                // ps.setString(3, faculty.getFacultyID());
+
+                // CHANGES, faculty, mao ni radio button -- line 737 to 738
+                ps.setString(3, ((RadioButton) genderGroup.getSelectedToggle()).getText());
+                ps.setString(4, faculty.getFacultyID());
 
                 ps.executeUpdate();
                 ps.close();
@@ -726,8 +761,19 @@ public class adminController {
         grid.setVgap(10);
 
         TextField fullnameField = new TextField();
-        ComboBox<String> genderCombo = new ComboBox<>();
-        genderCombo.getItems().addAll("Male", "Female");
+        // ORIGINAL
+        // ComboBox<String> genderCombo = new ComboBox<>();
+        // genderCombo.getItems().addAll("Male", "Female");
+
+        // CHANGES, faculty, mao ni ang radio button -- line 769 to 775
+        ToggleGroup genderGroup = new ToggleGroup();
+        RadioButton maleRadio = new RadioButton("Male");
+        maleRadio.setToggleGroup(genderGroup);
+        maleRadio.setSelected(true);
+        RadioButton femaleRadio = new RadioButton("Female");
+        femaleRadio.setToggleGroup(genderGroup);
+        HBox genderBox = new HBox(10, maleRadio, femaleRadio);
+
         TextField ageField = new TextField();
         ageField.setEditable(false);
 
@@ -746,7 +792,11 @@ public class adminController {
         PasswordField passwordField = new PasswordField();
 
         grid.addRow(0, new Label("Full Name:"), fullnameField);
-        grid.addRow(1, new Label("Gender:"), genderCombo);
+        // ORIGINAL
+        // grid.addRow(1, new Label("Gender:"), genderCombo);
+
+        // CHANGES, faculty, mao ni mag change radio button -- line 799 to 
+        grid.addRow(1, new Label("Gender:"), genderBox);
         grid.addRow(2, new Label("Birthday:"), birthdayPicker);
         grid.addRow(3, new Label("Age:"), ageField);
         grid.addRow(4, new Label("Email:"), emailField);
@@ -796,7 +846,11 @@ public class adminController {
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 );
                 ps.setString(1, fullnameField.getText());
-                ps.setString(2, genderCombo.getValue());
+                // ORIGINAL
+                // ps.setString(2, genderCombo.getValue());
+
+                // CHANGES, faculty, radio button -- line 853
+                ps.setString(2, ((RadioButton) genderGroup.getSelectedToggle()).getText());
                 ps.setString(3, ageField.getText());
                 ps.setString(4, email);
                 ps.setString(5, contactField.getText());
