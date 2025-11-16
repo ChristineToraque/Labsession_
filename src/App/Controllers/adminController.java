@@ -592,9 +592,9 @@ public class adminController {
                 if (item == null || empty) {
                     setStyle("");
                 } else {
-                    String loginStatus = item.getStatus();
+                    String accountStatus = item.getAccountStatus();
 
-                    if ("Logged In".equalsIgnoreCase(loginStatus) || "Active".equalsIgnoreCase(loginStatus)) {
+                    if ("Active".equalsIgnoreCase(accountStatus)) {
                         setStyle("-fx-background-color: #d4f8d4;"); // Light green for active/logged in
                     } else {
                         setStyle("-fx-background-color: #f8d4d4;"); // Light red for inactive
