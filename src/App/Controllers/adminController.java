@@ -328,7 +328,7 @@ public class adminController {
                 } else {
                     StudentView student = getTableView().getItems().get(getIndex());
                     String currentAccountStatus = student.getAccountStatus() != null ? student.getAccountStatus() : "Inactive";
-                    toggleStatusBtn.setText("Active".equalsIgnoreCase(currentAccountStatus) ? "Deactivate" : "Activate");
+                    toggleStatusBtn.setText("Active".equalsIgnoreCase(currentAccountStatus) ? "Activate" : "Deactivate");
                     setGraphic(actionBox);
                 }
             }
@@ -577,9 +577,9 @@ public class adminController {
                 } else {
                     FacultyView faculty = getTableView().getItems().get(getIndex());
                     if ("Active".equalsIgnoreCase(faculty.getAccountStatus())) {
-                        toggleStatusBtn.setText("Deactivate");
-                    } else {
                         toggleStatusBtn.setText("Activate");
+                    } else {
+                        toggleStatusBtn.setText("Deactivate");
                     }
                     setGraphic(btnBox);
                 }
