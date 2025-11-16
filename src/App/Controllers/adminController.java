@@ -92,9 +92,19 @@ public class adminController {
         TextField lastname = new TextField();
         TextField middlename = new TextField();
 
-        ComboBox<String> gender = new ComboBox<>();
-        gender.getItems().addAll("Male", "Female");
-        gender.setValue("Male");
+        // ORIGINAL
+        // ComboBox<String> gender = new ComboBox<>();
+        // gender.getItems().addAll("Male", "Female");
+        // gender.setValue("Male");
+
+        // Changes, student, radio button -- line 101 to 107
+        ToggleGroup genderGroup = new ToggleGroup();
+        RadioButton maleRadio = new RadioButton("Male");
+        maleRadio.setToggleGroup(genderGroup);
+        maleRadio.setSelected(true);
+        RadioButton femaleRadio = new RadioButton("Female");
+        femaleRadio.setToggleGroup(genderGroup);
+        HBox genderBox = new HBox(10, maleRadio, femaleRadio);
 
         DatePicker birthday = new DatePicker();
         TextField address = new TextField();
@@ -129,7 +139,11 @@ public class adminController {
         grid.addRow(0, new Label("First Name:"), firstname);
         grid.addRow(1, new Label("Middle Name:"), middlename); // ← New
         grid.addRow(2, new Label("Last Name:"), lastname);
-        grid.addRow(3, new Label("Gender:"), gender);
+        // ORIGINAL
+        // grid.addRow(3, new Label("Gender:"), gender);
+
+        // CHANGES, student, radio button -- line 146
+        grid.addRow(3, new Label("Gender:"), genderBox);
         grid.addRow(4, new Label("Birthday:"), birthday);
         grid.addRow(5, new Label("Age:"), ageField);
         grid.addRow(6, new Label("Address:"), address);
@@ -212,7 +226,11 @@ public class adminController {
                     insert.setString(1, lastname.getText());
                     insert.setString(2, firstname.getText());
                     insert.setString(3, middlename.getText()); // ← New
-                    insert.setString(4, gender.getValue());
+                    // ORIGINAL
+                    // insert.setString(4, gender.getValue());
+
+                    // CHANGES, student, radio button line -- line 233
+                    insert.setString(4, ((RadioButton) genderGroup.getSelectedToggle()).getText());
                     insert.setInt(5, age);
                     insert.setDate(6, Date.valueOf(birthday.getValue()));
                     insert.setString(7, address.getText());
@@ -364,11 +382,32 @@ public class adminController {
         // Create fields
         TextField firstname = new TextField(student.getFirstname());
         TextField lastname = new TextField(student.getLastname());
+        
+        // ORIGINAL
+
+        // CHANGES, student, radio button line 389 to 400
+        ToggleGroup genderGroup = new ToggleGroup();
+        RadioButton maleRadio = new RadioButton("Male");
+        maleRadio.setToggleGroup(genderGroup);
+        RadioButton femaleRadio = new RadioButton("Female");
+        femaleRadio.setToggleGroup(genderGroup);
+        HBox genderBox = new HBox(10, maleRadio, femaleRadio);
+
+        if ("Male".equalsIgnoreCase(student.getGender())) {
+            maleRadio.setSelected(true);
+        } else {
+            femaleRadio.setSelected(true);
+        }
+
         TextField email = new TextField(student.getEmail());
 
         VBox content = new VBox(10,
             new Label("First Name:"), firstname,
-            new Label("Last Name:"), lastname,
+            // ORIGINAL
+            // new Label("Last Name:"), lastname,
+
+            // CHANGES, student, radio button line 410
+            new Label("Last Name:"), lastname, new Label("Gender:"), genderBox,
             new Label("Email:"), email
         );
 
@@ -377,15 +416,23 @@ public class adminController {
 
         dialog.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                
-                String updateQuery = "UPDATE student SET firstname=?, lastname=?, email=? WHERE studentID=?";
+                // ORIGINAL
+                // String updateQuery = "UPDATE student SET firstname=?, lastname=?, email=? WHERE studentID=?";
+
+                // Changes, student, radio button line 421
+                String updateQuery = "UPDATE student SET firstname=?, lastname=?, email=?, gender=? WHERE studentID=?";
                 PreparedStatement stmt;
                 try {
                     stmt = dc.con.prepareStatement(updateQuery);
                     stmt.setString(1, firstname.getText());
                     stmt.setString(2, lastname.getText());
                     stmt.setString(3, email.getText());
-                    stmt.setString(4, student.getStudentID());
+                    // ORIGINAL
+                    // stmt.setString(4, student.getStudentID());
+
+                    // CHANGES, student, radio button line 434 to 435
+                    stmt.setString(4, ((RadioButton) genderGroup.getSelectedToggle()).getText());
+                    stmt.setString(5, student.getStudentID());
 
                     stmt.executeUpdate();
                     stmt.close();
