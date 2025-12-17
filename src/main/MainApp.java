@@ -17,7 +17,7 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         try {
             // Load the main.fxml file
-            Parent root = FXMLLoader.load(getClass().getResource("/App/Views/loginpanel.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/views/loginpanel.fxml"));
             // Parent root = FXMLLoader.load(getClass().getResource("/views/instructor/instructor.fxml"));
 
             // Set up the stage (window)
