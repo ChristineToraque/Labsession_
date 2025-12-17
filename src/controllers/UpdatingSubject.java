@@ -47,7 +47,7 @@ public class UpdatingSubject {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            navigateToFXML(event, "/views/loginpanel.fxml");  // Adjust path to your login page
+            navigateToFXML(event, "/App/Views/loginpanel.fxml");  // Adjust path to your login page
         }
     }
 

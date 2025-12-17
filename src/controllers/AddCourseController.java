@@ -126,7 +126,7 @@ private void handleLogOut(ActionEvent event) throws Exception {
         Stage stage = (Stage) buttonLogOut.getScene().getWindow();
         stage.close();
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/loginpanel.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/App/Views/loginpanel.fxml"));
         Stage loginStage = new Stage();
         loginStage.setScene(new Scene(loader.load()));
         loginStage.show();

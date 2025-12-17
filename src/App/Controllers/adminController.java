@@ -73,7 +73,7 @@ public class adminController {
             stage.close();
 
             // Load the login panel
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/loginpanel.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/App/Views/loginpanel.fxml"));
             Parent root = loader.load();
             Stage loginStage = new Stage();
             loginStage.setScene(new Scene(root));

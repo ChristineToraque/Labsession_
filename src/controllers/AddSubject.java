@@ -163,7 +163,7 @@ public class AddSubject implements Initializable {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == yesButton) {
-            navigate("/views/loginpanel.fxml");
+            navigate("/App/Views/loginpanel.fxml");
         }
     }
 

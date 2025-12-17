@@ -34,7 +34,7 @@ public class AddingSubject {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            navigateToFXML(event, "/views/loginpanel.fxml");  // Adjust the path for your login page
+            navigateToFXML(event, "/App/Views/loginpanel.fxml");  // Adjust the path for your login page
         }
     }
 

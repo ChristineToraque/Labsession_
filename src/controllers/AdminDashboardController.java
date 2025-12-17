@@ -168,7 +168,7 @@ private void loadFacultyData() {
         alert.showAndWait().ifPresent(response -> {
             if (response == okButton) {
                 try {
-                    Parent root = FXMLLoader.load(getClass().getResource("/views/loginpanel.fxml"));
+                    Parent root = FXMLLoader.load(getClass().getResource("/App/Views/loginpanel.fxml"));
                     Stage stage = (Stage) mainContent.getScene().getWindow();
                     stage.setScene(new Scene(root));
                     stage.show();

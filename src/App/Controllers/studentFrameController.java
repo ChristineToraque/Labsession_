@@ -482,7 +482,7 @@ public class studentFrameController {
                     }
 
                     javafx.stage.Stage stage = (javafx.stage.Stage) logoutButton.getScene().getWindow();
-                    javafx.scene.Parent root = javafx.fxml.FXMLLoader.load(getClass().getResource("/views/loginpanel.fxml"));
+                    javafx.scene.Parent root = javafx.fxml.FXMLLoader.load(getClass().getResource("/App/Views/loginpanel.fxml"));
                     stage.setScene(new javafx.scene.Scene(root));
                     stage.show();
                 } catch (Exception e) {

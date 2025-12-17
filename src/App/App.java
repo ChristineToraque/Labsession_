@@ -17,7 +17,7 @@ public class App extends Application {
     public void start(Stage primaryStage) {
         try {
             // Load the main.fxml file
-            Parent root = FXMLLoader.load(getClass().getResource("/views/loginpanel.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/App/Views/loginpanel.fxml"));
 
             // Set up the stage (window)
             Scene scene = new Scene(root); // Preferred size: 900x600
