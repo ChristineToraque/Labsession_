@@ -18,7 +18,7 @@ public class App extends Application {
     public void start(Stage primaryStage) {
         try {
             // Load the main.fxml file
-            URL fxmlLocation = getClass().getResource("/views/loginpanel.fxml");
+            URL fxmlLocation = getClass().getResource("/views/loginpanel.fxml"); // new
             if (fxmlLocation == null) {
                 throw new IllegalStateException("FXML resource not found on classpath: /App/Views/loginpanel.fxml");
             }
