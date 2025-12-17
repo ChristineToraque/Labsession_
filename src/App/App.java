@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import java.net.URL;
 
 public class App extends Application {
 
@@ -17,7 +18,11 @@ public class App extends Application {
     public void start(Stage primaryStage) {
         try {
             // Load the main.fxml file
-            Parent root = FXMLLoader.load(getClass().getResource("/App/Views/loginpanel.fxml"));
+            URL fxmlLocation = getClass().getResource("/App/Views/loginpanel.fxml");
+            if (fxmlLocation == null) {
+                throw new IllegalStateException("FXML resource not found on classpath: /App/Views/loginpanel.fxml");
+            }
+            Parent root = FXMLLoader.load(fxmlLocation);
 
             // Set up the stage (window)
             Scene scene = new Scene(root); // Preferred size: 900x600
