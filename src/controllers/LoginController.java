@@ -117,8 +117,13 @@ public class LoginController {
             stmt.setString(2, username); // username or email
             stmt.setString(3, password);
 
+            System.out.println("Executing query: " + query);
+            System.out.println("Username/Email: " + username);
+            System.out.println("Password: " + password);
+
             ResultSet rs = stmt.executeQuery();
             if (rs.next()){
+                System.out.println("User found!");
                 switch (userType) {
                     case "FACULTY":
                         id=rs.getString("facultyID");
