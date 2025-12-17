@@ -350,7 +350,7 @@ public class adminController {
                 } else {
                     StudentView student = getTableView().getItems().get(getIndex());
                     String currentAccountStatus = student.getAccountStatus() != null ? student.getAccountStatus() : "Inactive";
-                    toggleStatusBtn.setText("Active".equalsIgnoreCase(currentAccountStatus) ? "Activate" : "Deactivate");
+                    toggleStatusBtn.setText("Active".equalsIgnoreCase(currentAccountStatus) ? "Deactivate" : "Activate");
                     setGraphic(actionBox);
                 }
             }
@@ -628,9 +628,9 @@ public class adminController {
                 } else {
                     FacultyView faculty = getTableView().getItems().get(getIndex());
                     if ("Active".equalsIgnoreCase(faculty.getAccountStatus())) {
-                        toggleStatusBtn.setText("Activate");
-                    } else {
                         toggleStatusBtn.setText("Deactivate");
+                    } else {
+                        toggleStatusBtn.setText("Activate");
                     }
                     setGraphic(btnBox);
                 }
@@ -862,7 +862,7 @@ public class adminController {
             String email = emailField.getText();
 
             // Basic validation
-            if (fullnameField.getText().isEmpty() || genderCombo.getValue() == null || birthdayPicker.getValue() == null ||
+            if (fullnameField.getText().isEmpty() || genderGroup.getSelectedToggle() == null || birthdayPicker.getValue() == null ||
                 email.isEmpty() || contactField.getText().isEmpty() || dateHiredPicker.getValue() == null ||
                 usernameField.getText().isEmpty() || passwordField.getText().isEmpty()) {
 

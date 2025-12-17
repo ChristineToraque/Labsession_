@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="App.Controllers.studentFrameController">
+   <children>
+      <Pane fx:id="homePane" prefHeight="600.0" prefWidth="1000.0">
+         <children>
+            <Label fx:id="user" layoutX="34.0" layoutY="26.0" text="Welcome User">
+               <font>
+                  <Font name="System Bold" size="24.0" />
+               </font>
+            </Label>
+            <Button layoutX="425.0" layoutY="288.0" mnemonicParsing="false" onAction="#validateTaskCode" prefHeight="45.0" prefWidth="150.0" text="ENTER TASK CODE" />
+            <Button layoutX="34.0" layoutY="80.0" onAction="#taskClick" text="My Tasks" />
+            <Button layoutX="880.0" layoutY="38.0" onAction="#logout" text="Logout" />
+         </children>
+      </Pane>
+      <Pane fx:id="sessionPane" prefHeight="600.0" prefWidth="1000.0" visible="false">
+         <children>
+            <Label layoutX="50.0" layoutY="50.0" text="Task:">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <Label fx:id="task" layoutX="100.0" layoutY="50.0" text="Sample Task">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <Label layoutX="50.0" layoutY="90.0" text="Description:">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <Label fx:id="description" alignment="TOP_LEFT" layoutX="160.0" layoutY="90.0" prefHeight="100.0" prefWidth="400.0" text="Sample Description" wrapText="true">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="50.0" layoutY="200.0" text="Duration:">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <Label fx:id="duration" layoutX="140.0" layoutY="200.0" text="00:00:00">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <TextArea fx:id="message" layoutX="50.0" layoutY="250.0" prefHeight="150.0" prefWidth="500.0" promptText="Enter your message here..." />
+            <Button layoutX="50.0" layoutY="420.0" onAction="#handleUploadFile" text="Upload File" />
+            <Label fx:id="filePath" layoutX="150.0" layoutY="425.0" text="No file selected" />
+            <Button layoutX="450.0" layoutY="480.0" onAction="#handleFinishSubmission" prefHeight="40.0" prefWidth="100.0" text="FINISH" />
+         </children>
+      </Pane>
+      <Pane fx:id="tasksPane" prefHeight="600.0" prefWidth="1000.0" visible="false">
+         <children>
+            <Label layoutX="50.0" layoutY="30.0" text="My Submitted Tasks">
+               <font>
+                  <Font name="System Bold" size="24.0" />
+               </font>
+            </Label>
+            <TableView fx:id="myTaskTable" layoutX="50.0" layoutY="80.0" prefHeight="480.0" prefWidth="900.0">
+               <columns>
+                  <TableColumn fx:id="taskSubCode" prefWidth="100.0" text="Subject Code" />
+                  <TableColumn fx:id="taskSubDes" prefWidth="200.0" text="Subject Description" />
+                  <TableColumn fx:id="taskTask" prefWidth="200.0" text="Task" />
+                  <TableColumn fx:id="taskScore" prefWidth="100.0" text="Score" />
+                  <TableColumn fx:id="fileName" prefWidth="200.0" text="File Name" />
+                  <TableColumn fx:id="action" prefWidth="100.0" text="Actions" />
+               </columns>
+            </TableView>
+            <Button layoutX="880.0" layoutY="30.0" onAction="#homeClick" text="Back to Home" />
+         </children>
+      </Pane>
+   </children>
+</AnchorPane>
+```
+
+Now, I'll add the `logout` method to `studentFrameController.java`.
+
+```diff
+--- a/src/App/Controllers/studentFrameController.java
++++ b/src/App/Controllers/studentFrameController.java
+@@ -15,6 +15,10 @@
+ import javafx.animation.KeyFrame;
+ import javafx.animation.Timeline;
+ import javafx.fxml.FXML;
+ import javafx.scene.control.Alert;
+ import javafx.scene.control.Button;
+ import javafx.scene.control.ButtonBar;
+ import javafx.scene.control.ButtonType;
+ import javafx.scene.control.Label;
+ import javafx.scene.control.TableCell;
+ import javafx.scene.control.TableColumn;
+@@ -22,6 +26,10 @@
+ import javafx.scene.control.TextArea;
+ import javafx.scene.control.TextInputDialog;
+ import javafx.scene.layout.Pane;
++import javafx.stage.Stage;
++import javafx.scene.Node;
++import javafx.event.ActionEvent;
++import javafx.fxml.FXMLLoader;
++import javafx.scene.Parent;
++import javafx.scene.Scene;
+ import javafx.stage.FileChooser;
+ 
+ /**
+@@ -50,6 +58,26 @@
+         }
+         
+     }
++    
++    @FXML
++    private void logout(ActionEvent event) {
++        try {
++            // Update status to Inactive
++            PreparedStatement ps = dc.con.prepareStatement("UPDATE student SET status = 'Inactive' WHERE studentID = ?");
++            ps.setString(1, studentId);
++            ps.executeUpdate();
++            ps.close();
++
++            // Close current window
++            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
++            stage.close();
++
++            // Open login window
++            Parent root = FXMLLoader.load(getClass().getResource("/views/loginpanel.fxml"));
++            new Stage().setScene(new Scene(root));
++            
++        } catch (Exception e) {
++            e.printStackTrace();
++            showAlert(Alert.AlertType.ERROR, "Logout Error", "An error occurred during logout.");
++        }
++    }
+     @FXML private TableView<viewStudentPerformance> myTaskTable;
+     @FXML private TableColumn<viewStudentPerformance, String> taskSubCode, taskSubDes, taskTask, taskScore, fileName;
+     @FXML private TableColumn<viewStudentPerformance, Void> action;
