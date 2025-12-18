@@ -356,6 +356,10 @@ public class sessionController {
         taskSubjectList.clear();
 
         boolean filterBySubject = selectedSubjectId != null && !selectedSubjectId.isBlank();
+        if (!filterBySubject) {
+            return;
+        }
+
         String sql = """
             SELECT 
                 t.task_id, 
@@ -370,13 +374,12 @@ public class sessionController {
             FROM tasks t
             JOIN subject s ON t.subject_id = s.id
             WHERE t.instructor_id = ?
-        """ + (filterBySubject ? " AND t.subject_id = ?" : "") + " ORDER BY t.date_sub desc";
+            AND t.subject_id = ?
+        """ + " ORDER BY t.date_sub desc";
 
         PreparedStatement ps = dc.con.prepareStatement(sql);
         ps.setString(1, instructorID);
-        if (filterBySubject) {
-            ps.setString(2, selectedSubjectId);
-        }
+        ps.setString(2, selectedSubjectId);
         ResultSet rs = ps.executeQuery();
 
         while (rs.next()) {
