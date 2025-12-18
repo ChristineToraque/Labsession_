@@ -44,6 +44,7 @@
                   <TableColumn fx:id="facUsername" prefWidth="63.999969482421875" text="Username" />
                   <TableColumn fx:id="facPassword" prefWidth="65.59991455078125" text="Password" />
                   <TableColumn fx:id="status" prefWidth="67.99993896484375" text="Status" />
+                  <TableColumn fx:id="accountStatus" prefWidth="93.60000610351562" text="Account" />
                   <TableColumn fx:id="facActions" prefWidth="224.00006103515625" text="Actions" />
               </columns>
             </TableView>
@@ -65,6 +66,7 @@
                   <TableColumn fx:id="user" prefWidth="126.4000244140625" text="Username" />
                   <TableColumn fx:id="pass" prefWidth="138.4000244140625" text="Password" />
                   <TableColumn fx:id="yearSection" prefWidth="100.79998779296875" text="Year&amp;Section" />
+                  <TableColumn fx:id="studentAccountStatus" prefWidth="93.60000610351562" text="Account" />
                   <TableColumn fx:id="actions" prefWidth="126.4000244140625" text="Actions" />
               </columns>
             </TableView>
