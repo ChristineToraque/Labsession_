@@ -45,6 +45,7 @@ import javafx.stage.Stage;
  */
 public class sessionController {
     String instructorID = "";
+    String selectedSubjectId = "";
     DatabaseConnection dc = new DatabaseConnection();
     public void initialize()throws Exception{
         dc.connect();
@@ -350,8 +351,9 @@ public class sessionController {
 
     ObservableList<TaskSubjectView> taskSubjectList = FXCollections.observableArrayList();
     public void loadTaskSubjectData() throws Exception {
-        taskSubjectList.clear(); // Clear any existing data
+        taskSubjectList.clear();
 
+        boolean filterBySubject = selectedSubjectId != null && !selectedSubjectId.isBlank();
         String sql = """
             SELECT 
                 t.task_id, 
@@ -365,9 +367,14 @@ public class sessionController {
                 t.points
             FROM tasks t
             JOIN subject s ON t.subject_id = s.id
-            WHERE t.instructor_id = '"""+instructorID+"' ORDER BY t.date_sub desc";
+            WHERE t.instructor_id = ?
+        """ + (filterBySubject ? " AND t.subject_id = ?" : "") + " ORDER BY t.date_sub desc";
 
         PreparedStatement ps = dc.con.prepareStatement(sql);
+        ps.setString(1, instructorID);
+        if (filterBySubject) {
+            ps.setString(2, selectedSubjectId);
+        }
         ResultSet rs = ps.executeQuery();
 
         while (rs.next()) {
@@ -414,6 +421,37 @@ public class sessionController {
 
         subCode.setCellValueFactory(cellData -> cellData.getValue().codeProperty());
         subName.setCellValueFactory(cellData -> cellData.getValue().descriptionProperty());
+        subName.setCellFactory(col -> new TableCell<>() {
+            private final Button viewTaskBtn = new Button("VIEW TASK");
+            private final Label nameLabel = new Label();
+            private final HBox container = new HBox(8, nameLabel, viewTaskBtn);
+
+            {
+                viewTaskBtn.setOnAction(event -> {
+                    subject selected = getTableView().getItems().get(getIndex());
+                    if (selected == null) return;
+                    selectedSubjectId = selected.getId();
+                    try {
+                        taskPaneShow();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    nameLabel.setText(item);
+                    setText(null);
+                    setGraphic(container);
+                }
+            }
+        });
         subSem.setCellValueFactory(cellData -> cellData.getValue().semProperty());
         subYear.setCellValueFactory(cellData -> cellData.getValue().yearProperty());
         subjectTable.setItems(subjects);
@@ -884,6 +922,7 @@ public class sessionController {
 
     @FXML private Pane taskPane, subjectPane, studentPassPane;
     public void taskPaneShow()throws Exception{
+        selectedSubjectId = "";
         taskPane.setVisible(true);
         // Add this line to your existing taskPaneShow method
         subjectPane.setVisible(false);
