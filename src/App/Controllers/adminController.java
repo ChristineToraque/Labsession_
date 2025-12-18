@@ -423,16 +423,7 @@ public class adminController {
     }
 
     @FXML
-    private void activateSelectedStudents() {
-        updateSelectedStudentsAccountStatus("Active");
-    }
-
-    @FXML
-    private void deactivateSelectedStudents() {
-        updateSelectedStudentsAccountStatus("Inactive");
-    }
-
-    private void updateSelectedStudentsAccountStatus(String newStatus) {
+    private void updateSelectedStudentsStatus() {
         List<String> selectedIds = new ArrayList<>();
         for (StudentView s : studentList) {
             if (s.isSelected()) {
@@ -448,11 +439,11 @@ public class adminController {
         try {
             String placeholders = String.join(",", java.util.Collections.nCopies(selectedIds.size(), "?"));
             PreparedStatement ps = dc.con.prepareStatement(
-                "UPDATE student SET account_status = ? WHERE studentID IN (" + placeholders + ")"
+                "UPDATE student SET account_status = CASE WHEN account_status = 'Active' THEN 'Inactive' ELSE 'Active' END " +
+                "WHERE studentID IN (" + placeholders + ")"
             );
-            ps.setString(1, newStatus);
             for (int i = 0; i < selectedIds.size(); i++) {
-                ps.setString(i + 2, selectedIds.get(i));
+                ps.setString(i + 1, selectedIds.get(i));
             }
             ps.executeUpdate();
             ps.close();
@@ -813,16 +804,7 @@ public class adminController {
     }
 
     @FXML
-    private void activateSelectedFaculty() {
-        updateSelectedFacultyAccountStatus("Active");
-    }
-
-    @FXML
-    private void deactivateSelectedFaculty() {
-        updateSelectedFacultyAccountStatus("Inactive");
-    }
-
-    private void updateSelectedFacultyAccountStatus(String newStatus) {
+    private void updateSelectedFacultyStatus() {
         List<String> selectedIds = new ArrayList<>();
         for (FacultyView f : facultyList) {
             if (f.isSelected()) {
@@ -838,11 +820,11 @@ public class adminController {
         try {
             String placeholders = String.join(",", java.util.Collections.nCopies(selectedIds.size(), "?"));
             PreparedStatement ps = dc.con.prepareStatement(
-                "UPDATE faculty SET account_status = ? WHERE facultyID IN (" + placeholders + ")"
+                "UPDATE faculty SET account_status = CASE WHEN account_status = 'Active' THEN 'Inactive' ELSE 'Active' END " +
+                "WHERE facultyID IN (" + placeholders + ")"
             );
-            ps.setString(1, newStatus);
             for (int i = 0; i < selectedIds.size(); i++) {
-                ps.setString(i + 2, selectedIds.get(i));
+                ps.setString(i + 1, selectedIds.get(i));
             }
             ps.executeUpdate();
             ps.close();
