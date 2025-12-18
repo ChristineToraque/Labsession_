@@ -333,18 +333,15 @@ public class adminController {
 
         javafx.scene.control.CheckBox studentHeaderCheckBox = new javafx.scene.control.CheckBox();
         studentHeaderCheckBox.setAllowIndeterminate(true);
+        studentAccountStatus.setSortable(false);
         studentAccountStatus.setText("Account");
         studentAccountStatus.setGraphic(studentHeaderCheckBox);
         studentHeaderCheckBox.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
-            if (studentHeaderCheckBox.isIndeterminate()) {
-                studentHeaderCheckBox.setIndeterminate(false);
-                studentHeaderCheckBox.setSelected(true);
-            }
-        });
-        studentHeaderCheckBox.setOnAction(e -> {
             try {
+                boolean targetSelected = studentHeaderCheckBox.isIndeterminate() || !studentHeaderCheckBox.isSelected();
                 studentHeaderCheckBox.setIndeterminate(false);
-                String newStatus = studentHeaderCheckBox.isSelected() ? "Active" : "Inactive";
+                studentHeaderCheckBox.setSelected(targetSelected);
+                String newStatus = targetSelected ? "Active" : "Inactive";
                 PreparedStatement ps = dc.con.prepareStatement("UPDATE student SET account_status = ?");
                 ps.setString(1, newStatus);
                 ps.executeUpdate();
@@ -353,6 +350,7 @@ public class adminController {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+            e.consume();
         });
 
         PreparedStatement stmt = dc.con.prepareStatement("SELECT * FROM student ORDER BY lastname");
@@ -568,18 +566,15 @@ public class adminController {
 
         javafx.scene.control.CheckBox facultyHeaderCheckBox = new javafx.scene.control.CheckBox();
         facultyHeaderCheckBox.setAllowIndeterminate(true);
+        accountStatus.setSortable(false);
         accountStatus.setText("Account");
         accountStatus.setGraphic(facultyHeaderCheckBox);
         facultyHeaderCheckBox.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
-            if (facultyHeaderCheckBox.isIndeterminate()) {
-                facultyHeaderCheckBox.setIndeterminate(false);
-                facultyHeaderCheckBox.setSelected(true);
-            }
-        });
-        facultyHeaderCheckBox.setOnAction(e -> {
             try {
+                boolean targetSelected = facultyHeaderCheckBox.isIndeterminate() || !facultyHeaderCheckBox.isSelected();
                 facultyHeaderCheckBox.setIndeterminate(false);
-                String newStatus = facultyHeaderCheckBox.isSelected() ? "Active" : "Inactive";
+                facultyHeaderCheckBox.setSelected(targetSelected);
+                String newStatus = targetSelected ? "Active" : "Inactive";
                 PreparedStatement ps2 = dc.con.prepareStatement("UPDATE faculty SET account_status = ?");
                 ps2.setString(1, newStatus);
                 ps2.executeUpdate();
@@ -588,6 +583,7 @@ public class adminController {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+            e.consume();
         });
 
         boolean anyActive = facultyList.stream().anyMatch(f -> "Active".equalsIgnoreCase(f.getAccountStatus()));
