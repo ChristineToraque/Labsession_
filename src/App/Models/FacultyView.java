@@ -9,6 +9,8 @@ package App.Models;
  * @author Blanc
  */
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 
 public class FacultyView {
@@ -23,6 +25,7 @@ public class FacultyView {
     private final StringProperty password;
     private final StringProperty status;
     private final StringProperty accountStatus;
+    private final BooleanProperty selected;
 
     public FacultyView(String facultyID, String fullname, String gender, String age,
                        String email, String contact, String dateHired,
@@ -38,6 +41,7 @@ public class FacultyView {
         this.password = new SimpleStringProperty(password);
         this.status = new SimpleStringProperty(status);
         this.accountStatus = new SimpleStringProperty(accountStatus);
+        this.selected = new SimpleBooleanProperty(false);
     }
 
     // Getters
@@ -52,6 +56,8 @@ public class FacultyView {
     public String getPassword() { return password.get(); }
     public String getStatus() { return status.get(); }
     public String getAccountStatus() { return accountStatus.get(); }
+    public boolean isSelected() { return selected.get(); }
+    public void setSelected(boolean value) { selected.set(value); }
 
     // Properties
     public StringProperty facultyIDProperty() { return facultyID; }
@@ -65,5 +71,6 @@ public class FacultyView {
     public StringProperty passwordProperty() { return password; }
     public StringProperty statusProperty() { return status; }
     public StringProperty accountStatusProperty() { return accountStatus; }
+    public BooleanProperty selectedProperty() { return selected; }
 }
 

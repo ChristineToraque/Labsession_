@@ -39,6 +39,7 @@
          <children>
             <TableView fx:id="facultyTable" layoutX="8.0" layoutY="108.0" prefHeight="396.0" prefWidth="766.0">
               <columns>
+                <TableColumn fx:id="facultySelect" prefWidth="60.0" text="Select" />
                 <TableColumn fx:id="facFullname" prefWidth="163.1999969482422" text="Fullname" />
                 <TableColumn fx:id="facEmail" prefWidth="176.79998779296875" text="Email" />
                   <TableColumn fx:id="facUsername" prefWidth="63.999969482421875" text="Username" />
@@ -49,6 +50,8 @@
               </columns>
             </TableView>
             <Button layoutX="638.0" layoutY="75.0" mnemonicParsing="false" onAction="#showAddFacultyDialog" prefHeight="25.0" prefWidth="130.0" text="ADD" />
+            <Button layoutX="418.0" layoutY="75.0" mnemonicParsing="false" onAction="#activateSelectedFaculty" prefHeight="25.0" prefWidth="105.0" text="ACTIVATE" />
+            <Button layoutX="528.0" layoutY="75.0" mnemonicParsing="false" onAction="#deactivateSelectedFaculty" prefHeight="25.0" prefWidth="105.0" text="DEACTIVATE" />
             <TextField fx:id="facKeyWord" layoutX="8.0" layoutY="75.0" onKeyReleased="#searchFaculty" prefHeight="25.0" prefWidth="339.0" promptText="Search" />
             <Label layoutX="257.0" layoutY="14.0" text="LIST OF FACULTIES">
                <font>
@@ -61,6 +64,7 @@
          <children>
             <TableView fx:id="studentTable" layoutX="14.0" layoutY="117.0" prefHeight="458.0" prefWidth="756.0">
               <columns>
+                <TableColumn fx:id="studentSelect" prefWidth="60.0" text="Select" />
                 <TableColumn fx:id="fullname" prefWidth="109.60003662109375" text="Fullname" />
                   <TableColumn fx:id="email" prefWidth="148.79995727539062" text="Email" />
                   <TableColumn fx:id="user" prefWidth="126.4000244140625" text="Username" />
@@ -71,6 +75,8 @@
               </columns>
             </TableView>
             <Button layoutX="639.0" layoutY="80.0" mnemonicParsing="false" onAction="#handleAddStudent" prefHeight="25.0" prefWidth="130.0" text="ADD" />
+            <Button layoutX="417.0" layoutY="80.0" mnemonicParsing="false" onAction="#activateSelectedStudents" prefHeight="25.0" prefWidth="105.0" text="ACTIVATE" />
+            <Button layoutX="527.0" layoutY="80.0" mnemonicParsing="false" onAction="#deactivateSelectedStudents" prefHeight="25.0" prefWidth="105.0" text="DEACTIVATE" />
             <TextField fx:id="keyword" layoutX="14.0" layoutY="80.0" onKeyReleased="#searchStudents" prefHeight="25.0" prefWidth="387.0" promptText="Search" />
             <Label layoutX="266.0" layoutY="14.0" text="LIST OF STUDENTS">
                <font>

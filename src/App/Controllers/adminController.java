@@ -20,6 +20,8 @@ import javafx.scene.layout.HBox;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -280,41 +282,24 @@ public class adminController {
 
 
     @FXML private TableView<StudentView> studentTable;
+    @FXML private TableColumn<StudentView, Boolean> studentSelect;
     @FXML private TableColumn<StudentView, String> fullname, email, user, pass, yearSection;
-    @FXML private TableColumn<StudentView, Boolean> studentAccountStatus;
+    @FXML private TableColumn<StudentView, String> studentAccountStatus;
     @FXML private TableColumn<StudentView, Void> actions;
     
     ObservableList<StudentView> studentList = FXCollections.observableArrayList();
     public void loadStudents() throws SQLException {
         studentList.clear();
 
-        fullname.setCellValueFactory(data -> data.getValue().fullnameProperty());
-        email.setCellValueFactory(data -> data.getValue().emailProperty());
-        user.setCellValueFactory(data -> data.getValue().usernameProperty());
-        pass.setCellValueFactory(data -> data.getValue().passwordProperty());
-        yearSection.setCellValueFactory(data ->
-        new SimpleStringProperty(data.getValue().getYear() + " - " + data.getValue().getSection()));
-        studentAccountStatus.setCellValueFactory(data ->
-        new SimpleBooleanProperty("Active".equalsIgnoreCase(data.getValue().getAccountStatus())));
-        studentAccountStatus.setCellFactory(col -> new TableCell<>() {
+        studentSelect.setCellValueFactory(data -> data.getValue().selectedProperty());
+        studentSelect.setCellFactory(col -> new TableCell<>() {
             private final javafx.scene.control.CheckBox checkBox = new javafx.scene.control.CheckBox();
 
             {
                 checkBox.setOnAction(e -> {
                     StudentView student = getTableView().getItems().get(getIndex());
-                    if (student == null) return;
-                    try {
-                        String newAccountStatus = checkBox.isSelected() ? "Active" : "Inactive";
-                        PreparedStatement ps = dc.con.prepareStatement(
-                        "UPDATE student SET account_status = ? WHERE studentID = ?"
-                        );
-                        ps.setString(1, newAccountStatus);
-                        ps.setString(2, student.getStudentID());
-                        ps.executeUpdate();
-                        ps.close();
-                        loadStudents();
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
+                    if (student != null) {
+                        student.setSelected(checkBox.isSelected());
                     }
                 });
             }
@@ -331,27 +316,29 @@ public class adminController {
             }
         });
 
-        javafx.scene.control.CheckBox studentHeaderCheckBox = new javafx.scene.control.CheckBox();
-        studentHeaderCheckBox.setAllowIndeterminate(true);
-        studentAccountStatus.setSortable(false);
-        studentAccountStatus.setText("Account");
-        studentAccountStatus.setGraphic(studentHeaderCheckBox);
-        studentHeaderCheckBox.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
-            try {
-                boolean targetSelected = studentHeaderCheckBox.isIndeterminate() || !studentHeaderCheckBox.isSelected();
-                studentHeaderCheckBox.setIndeterminate(false);
-                studentHeaderCheckBox.setSelected(targetSelected);
-                String newStatus = targetSelected ? "Active" : "Inactive";
-                PreparedStatement ps = dc.con.prepareStatement("UPDATE student SET account_status = ?");
-                ps.setString(1, newStatus);
-                ps.executeUpdate();
-                ps.close();
-                loadStudents();
-            } catch (Exception ex) {
-                ex.printStackTrace();
+        javafx.scene.control.CheckBox studentSelectHeaderCheckBox = new javafx.scene.control.CheckBox();
+        studentSelectHeaderCheckBox.setAllowIndeterminate(true);
+        studentSelect.setSortable(false);
+        studentSelect.setText("Select");
+        studentSelect.setGraphic(studentSelectHeaderCheckBox);
+        studentSelectHeaderCheckBox.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+            boolean targetSelected = studentSelectHeaderCheckBox.isIndeterminate() || !studentSelectHeaderCheckBox.isSelected();
+            studentSelectHeaderCheckBox.setIndeterminate(false);
+            studentSelectHeaderCheckBox.setSelected(targetSelected);
+            for (StudentView s : studentList) {
+                s.setSelected(targetSelected);
             }
+            studentTable.refresh();
             e.consume();
         });
+
+        fullname.setCellValueFactory(data -> data.getValue().fullnameProperty());
+        email.setCellValueFactory(data -> data.getValue().emailProperty());
+        user.setCellValueFactory(data -> data.getValue().usernameProperty());
+        pass.setCellValueFactory(data -> data.getValue().passwordProperty());
+        yearSection.setCellValueFactory(data ->
+        new SimpleStringProperty(data.getValue().getYear() + " - " + data.getValue().getSection()));
+        studentAccountStatus.setCellValueFactory(data -> data.getValue().accountStatusProperty());
 
         PreparedStatement stmt = dc.con.prepareStatement("SELECT * FROM student ORDER BY lastname");
         ResultSet rs = stmt.executeQuery();
@@ -377,16 +364,16 @@ public class adminController {
 
         }
 
-        boolean anyActive = studentList.stream().anyMatch(s -> "Active".equalsIgnoreCase(s.getAccountStatus()));
-        boolean anyInactive = studentList.stream().anyMatch(s -> !"Active".equalsIgnoreCase(s.getAccountStatus()));
-        if (!anyActive && !anyInactive) {
-            studentHeaderCheckBox.setSelected(false);
-            studentHeaderCheckBox.setIndeterminate(false);
-        } else if (anyActive && anyInactive) {
-            studentHeaderCheckBox.setIndeterminate(true);
+        boolean anySelected = studentList.stream().anyMatch(StudentView::isSelected);
+        boolean anyUnselected = studentList.stream().anyMatch(s -> !s.isSelected());
+        if (!anySelected && !anyUnselected) {
+            studentSelectHeaderCheckBox.setSelected(false);
+            studentSelectHeaderCheckBox.setIndeterminate(false);
+        } else if (anySelected && anyUnselected) {
+            studentSelectHeaderCheckBox.setIndeterminate(true);
         } else {
-            studentHeaderCheckBox.setSelected(anyActive);
-            studentHeaderCheckBox.setIndeterminate(false);
+            studentSelectHeaderCheckBox.setSelected(anySelected);
+            studentSelectHeaderCheckBox.setIndeterminate(false);
         }
         actions.setCellFactory(col -> new TableCell<>() {
             private final Button editBtn = new Button("EDIT");
@@ -433,6 +420,46 @@ public class adminController {
         stmt.close();
 
         studentTable.setItems(studentList);
+    }
+
+    @FXML
+    private void activateSelectedStudents() {
+        updateSelectedStudentsAccountStatus("Active");
+    }
+
+    @FXML
+    private void deactivateSelectedStudents() {
+        updateSelectedStudentsAccountStatus("Inactive");
+    }
+
+    private void updateSelectedStudentsAccountStatus(String newStatus) {
+        List<String> selectedIds = new ArrayList<>();
+        for (StudentView s : studentList) {
+            if (s.isSelected()) {
+                selectedIds.add(s.getStudentID());
+            }
+        }
+
+        if (selectedIds.isEmpty()) {
+            showAlert("No students selected.");
+            return;
+        }
+
+        try {
+            String placeholders = String.join(",", java.util.Collections.nCopies(selectedIds.size(), "?"));
+            PreparedStatement ps = dc.con.prepareStatement(
+                "UPDATE student SET account_status = ? WHERE studentID IN (" + placeholders + ")"
+            );
+            ps.setString(1, newStatus);
+            for (int i = 0; i < selectedIds.size(); i++) {
+                ps.setString(i + 2, selectedIds.get(i));
+            }
+            ps.executeUpdate();
+            ps.close();
+            loadStudents();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
     @FXML private TextField keyword;
     @FXML
@@ -537,13 +564,55 @@ public class adminController {
 
 
     @FXML private TableView<FacultyView> facultyTable;
+    @FXML private TableColumn<FacultyView, Boolean> facultySelect;
     @FXML private TableColumn<FacultyView, String> facFullname, facEmail, facPassword, facUsername, status;
-    @FXML private TableColumn<FacultyView, Boolean> accountStatus;
+    @FXML private TableColumn<FacultyView, String> accountStatus;
     @FXML private TableColumn<FacultyView, Void> facActions;
     
     ObservableList<FacultyView> facultyList = FXCollections.observableArrayList();
     public void loadFacultyTable() throws Exception {
         facultyList.clear();
+
+        facultySelect.setCellValueFactory(data -> data.getValue().selectedProperty());
+        facultySelect.setCellFactory(col -> new TableCell<>() {
+            private final javafx.scene.control.CheckBox checkBox = new javafx.scene.control.CheckBox();
+
+            {
+                checkBox.setOnAction(e -> {
+                    FacultyView f = getTableView().getItems().get(getIndex());
+                    if (f != null) {
+                        f.setSelected(checkBox.isSelected());
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    checkBox.setSelected(Boolean.TRUE.equals(item));
+                    setGraphic(checkBox);
+                }
+            }
+        });
+
+        javafx.scene.control.CheckBox facultySelectHeaderCheckBox = new javafx.scene.control.CheckBox();
+        facultySelectHeaderCheckBox.setAllowIndeterminate(true);
+        facultySelect.setSortable(false);
+        facultySelect.setText("Select");
+        facultySelect.setGraphic(facultySelectHeaderCheckBox);
+        facultySelectHeaderCheckBox.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+            boolean targetSelected = facultySelectHeaderCheckBox.isIndeterminate() || !facultySelectHeaderCheckBox.isSelected();
+            facultySelectHeaderCheckBox.setIndeterminate(false);
+            facultySelectHeaderCheckBox.setSelected(targetSelected);
+            for (FacultyView f : facultyList) {
+                f.setSelected(targetSelected);
+            }
+            facultyTable.refresh();
+            e.consume();
+        });
 
         // Sample query – use your actual database access here
         PreparedStatement ps = dc.con.prepareStatement("SELECT * FROM faculty");
@@ -564,38 +633,16 @@ public class adminController {
             ));
         }
 
-        javafx.scene.control.CheckBox facultyHeaderCheckBox = new javafx.scene.control.CheckBox();
-        facultyHeaderCheckBox.setAllowIndeterminate(true);
-        accountStatus.setSortable(false);
-        accountStatus.setText("Account");
-        accountStatus.setGraphic(facultyHeaderCheckBox);
-        facultyHeaderCheckBox.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
-            try {
-                boolean targetSelected = facultyHeaderCheckBox.isIndeterminate() || !facultyHeaderCheckBox.isSelected();
-                facultyHeaderCheckBox.setIndeterminate(false);
-                facultyHeaderCheckBox.setSelected(targetSelected);
-                String newStatus = targetSelected ? "Active" : "Inactive";
-                PreparedStatement ps2 = dc.con.prepareStatement("UPDATE faculty SET account_status = ?");
-                ps2.setString(1, newStatus);
-                ps2.executeUpdate();
-                ps2.close();
-                loadFacultyTable();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            e.consume();
-        });
-
-        boolean anyActive = facultyList.stream().anyMatch(f -> "Active".equalsIgnoreCase(f.getAccountStatus()));
-        boolean anyInactive = facultyList.stream().anyMatch(f -> !"Active".equalsIgnoreCase(f.getAccountStatus()));
-        if (!anyActive && !anyInactive) {
-            facultyHeaderCheckBox.setSelected(false);
-            facultyHeaderCheckBox.setIndeterminate(false);
-        } else if (anyActive && anyInactive) {
-            facultyHeaderCheckBox.setIndeterminate(true);
+        boolean anySelected = facultyList.stream().anyMatch(FacultyView::isSelected);
+        boolean anyUnselected = facultyList.stream().anyMatch(f -> !f.isSelected());
+        if (!anySelected && !anyUnselected) {
+            facultySelectHeaderCheckBox.setSelected(false);
+            facultySelectHeaderCheckBox.setIndeterminate(false);
+        } else if (anySelected && anyUnselected) {
+            facultySelectHeaderCheckBox.setIndeterminate(true);
         } else {
-            facultyHeaderCheckBox.setSelected(anyActive);
-            facultyHeaderCheckBox.setIndeterminate(false);
+            facultySelectHeaderCheckBox.setSelected(anySelected);
+            facultySelectHeaderCheckBox.setIndeterminate(false);
         }
 
         rs.close();
@@ -607,42 +654,7 @@ public class adminController {
         facUsername.setCellValueFactory(data -> data.getValue().usernameProperty());
         facPassword.setCellValueFactory(data -> data.getValue().passwordProperty());
         status.setCellValueFactory(data -> data.getValue().statusProperty());
-        accountStatus.setCellValueFactory(data ->
-        new SimpleBooleanProperty("Active".equalsIgnoreCase(data.getValue().getAccountStatus())));
-        accountStatus.setCellFactory(col -> new TableCell<>() {
-            private final javafx.scene.control.CheckBox checkBox = new javafx.scene.control.CheckBox();
-
-            {
-                checkBox.setOnAction(e -> {
-                    FacultyView selected = getTableView().getItems().get(getIndex());
-                    if (selected == null) return;
-                    try {
-                        String newAccountStatus = checkBox.isSelected() ? "Active" : "Inactive";
-                        PreparedStatement ps = dc.con.prepareStatement(
-                        "UPDATE faculty SET account_status = ? WHERE facultyID = ?"
-                        );
-                        ps.setString(1, newAccountStatus);
-                        ps.setString(2, selected.getFacultyID());
-                        ps.executeUpdate();
-                        ps.close();
-                        loadFacultyTable();
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                });
-            }
-
-            @Override
-            protected void updateItem(Boolean item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    checkBox.setSelected(Boolean.TRUE.equals(item));
-                    setGraphic(checkBox);
-                }
-            }
-        });
+        accountStatus.setCellValueFactory(data -> data.getValue().accountStatusProperty());
 
         // Set actions column
         facActions.setCellFactory(col -> new TableCell<>() {
@@ -798,6 +810,46 @@ public class adminController {
             }
         });
         facultyTable.setItems(facultyList);
+    }
+
+    @FXML
+    private void activateSelectedFaculty() {
+        updateSelectedFacultyAccountStatus("Active");
+    }
+
+    @FXML
+    private void deactivateSelectedFaculty() {
+        updateSelectedFacultyAccountStatus("Inactive");
+    }
+
+    private void updateSelectedFacultyAccountStatus(String newStatus) {
+        List<String> selectedIds = new ArrayList<>();
+        for (FacultyView f : facultyList) {
+            if (f.isSelected()) {
+                selectedIds.add(f.getFacultyID());
+            }
+        }
+
+        if (selectedIds.isEmpty()) {
+            showAlert("No faculty selected.");
+            return;
+        }
+
+        try {
+            String placeholders = String.join(",", java.util.Collections.nCopies(selectedIds.size(), "?"));
+            PreparedStatement ps = dc.con.prepareStatement(
+                "UPDATE faculty SET account_status = ? WHERE facultyID IN (" + placeholders + ")"
+            );
+            ps.setString(1, newStatus);
+            for (int i = 0; i < selectedIds.size(); i++) {
+                ps.setString(i + 2, selectedIds.get(i));
+            }
+            ps.executeUpdate();
+            ps.close();
+            loadFacultyTable();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
     
     private void showTasksDialog(subject subj) {

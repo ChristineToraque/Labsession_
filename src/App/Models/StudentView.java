@@ -9,6 +9,8 @@ package App.Models;
  * @author Blanc
  */
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 
 public class StudentView {
@@ -28,6 +30,7 @@ public class StudentView {
     private final StringProperty year;
     private final StringProperty status;
     private final StringProperty accountStatus;
+    private final BooleanProperty selected;
 
 
     public StudentView(String studentID, String lastname, String firstname, String gender, String age,
@@ -48,10 +51,15 @@ public class StudentView {
         this.year = new SimpleStringProperty(year);
         this.status = new SimpleStringProperty(status);
         this.accountStatus = new SimpleStringProperty(accountStatus);
+        this.selected = new SimpleBooleanProperty(false);
     }
     public String getAccountStatus() { return accountStatus.get(); }
     public void setAccountStatus(String value) { accountStatus.set(value); }
     public StringProperty accountStatusProperty() { return accountStatus; }
+
+    public boolean isSelected() { return selected.get(); }
+    public void setSelected(boolean value) { selected.set(value); }
+    public BooleanProperty selectedProperty() { return selected; }
     public StringProperty statusProperty() { return status; }
     public String getSection() { return section.get(); }
     public void setSection(String value) { section.set(value); }
