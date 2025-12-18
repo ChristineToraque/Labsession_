@@ -21,7 +21,7 @@
          </image>
       </ImageView>
       <Line endX="-17.999984741210938" layoutX="142.0" layoutY="117.0" startX="-100.0" />
-      <Button layoutX="18.0" layoutY="244.0" mnemonicParsing="false" onAction="#taskPaneShow" prefHeight="26.0" prefWidth="130.0" style="-fx-background-color: lightblue;" text="TASKS">
+      <Button layoutX="18.0" layoutY="244.0" mnemonicParsing="false" onAction="#taskPaneShowAll" prefHeight="26.0" prefWidth="130.0" style="-fx-background-color: lightblue;" text="TASKS">
          <font>
             <Font name="System Bold" size="12.0" />
          </font>
@@ -85,7 +85,7 @@
               </columns>
             </TableView>
             <Label fx:id="totalPass" layoutX="79.0" layoutY="75.0" text="Total: " />
-            <Button layoutX="79.0" layoutY="40.0" mnemonicParsing="false" onAction="#taskPaneShow" text="Back" />
+            <Button layoutX="79.0" layoutY="40.0" mnemonicParsing="false" onAction="#taskPaneShowAll" text="Back" />
          </children>
       </Pane>
       <Button layoutX="18.0" layoutY="270.0" mnemonicParsing="false" onAction="#logOut" prefHeight="26.0" prefWidth="130.0" style="-fx-background-color: lightblue;" text="LOGOUT">

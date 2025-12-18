@@ -29,6 +29,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
@@ -424,9 +426,11 @@ public class sessionController {
         subName.setCellFactory(col -> new TableCell<>() {
             private final Button viewTaskBtn = new Button("VIEW TASK");
             private final Label nameLabel = new Label();
-            private final HBox container = new HBox(8, nameLabel, viewTaskBtn);
+            private final Region spacer = new Region();
+            private final HBox container = new HBox(8, nameLabel, spacer, viewTaskBtn);
 
             {
+                HBox.setHgrow(spacer, Priority.ALWAYS);
                 viewTaskBtn.setOnAction(event -> {
                     subject selected = getTableView().getItems().get(getIndex());
                     if (selected == null) return;
@@ -922,12 +926,17 @@ public class sessionController {
 
     @FXML private Pane taskPane, subjectPane, studentPassPane;
     public void taskPaneShow()throws Exception{
-        selectedSubjectId = "";
         taskPane.setVisible(true);
         // Add this line to your existing taskPaneShow method
         subjectPane.setVisible(false);
         studentPassPane.setVisible(false);
         loadTasksToTable();
+    }
+
+    @FXML
+    public void taskPaneShowAll() throws Exception {
+        selectedSubjectId = "";
+        taskPaneShow();
     }
     public void subjectPaneShow()throws Exception{
         taskPane.setVisible(false);
